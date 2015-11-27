@@ -9,6 +9,7 @@ import traceback
 import Queue
 import FileLogger
 import MySQLdatabase
+import ow
 from Credentials import *
 from Config import *
 
@@ -96,17 +97,14 @@ class RPi_Temp(threading.Thread):
 
 	def init(self):
 		try:
-			self.device_file = self.initTemp()
-			if not self.device_file:
-				return False
-			else:
-				return True
-						
-		except IOError, e:
+			ow.init('localhost:4304')
+			return True				
+		except Exception, e:
 			print (strftime("[%H:%M:%S]: EXCEPTION ", localtime()) + traceback.format_exc())
 
 			if self.logger:
 				self.logger.error((strftime("[%H:%M:%S]: EXCEPTION ", localtime()) + traceback.format_exc()), exc_info=True)
+		  		return False		        
 			#sys.exit()
 		
 
@@ -114,9 +112,9 @@ class RPi_Temp(threading.Thread):
 		print "Starting RPi Temp thread..."
 
 		# Initialize
-		self.device_file = self.initTemp()
-		if not self.device_file:
-			print (strftime("[%H:%M:%S]: Error: cannot initialize RPi Temp Sensor ", localtime()))
+		#self.device_file = self.initTemp()
+		#if not self.device_file:
+		#	print (strftime("[%H:%M:%S]: Error: cannot initialize RPi Temp Sensor ", localtime()))
 
 		# Subtract post interval to get immediate reading in loop below
 		currentposttime = time() - self.postinterval
@@ -144,10 +142,10 @@ class RPi_Temp(threading.Thread):
 
 						curTime = time()
 
-						curTemp = self.read_temp(self.device_file, 5)
+						curTemp = self.read_temp()
 						if (curTemp != None):
 							print (strftime("[%H:%M:%S]: ", localtime()) + "2nd Floor Temp\t" + str(curTemp))
-							MySQLdatabase.InsertData(db, 'sensordata', '2nd Floor', 'Raspberry Pi', 'Current', 'Temperature', curTemp, 'F')
+							MySQLdatabase.InsertData(db, 'sensordata', '2nd Floor', 'Raspberry Pi', 'Current', 'Temperature', "%.2f" % float(curTemp), 'C')
 							if self.logger:
 								self.logger.info (strftime("[%H:%M:%S]: ", localtime()) + "2nd Floor Temp\t" + str(curTemp))
 
@@ -205,46 +203,28 @@ class RPi_Temp(threading.Thread):
 		if self.qOut and not self.qOut.full():
 			self.qOut.put(msgOut)
 
+	def read_temp(self):
+		sensors = ow.Sensor("/").sensorList()
 
-	def initTemp(self):
-		os.system('modprobe w1-gpio')
-		os.system('modprobe w1-therm')
+		for sensor in sensors[:]:	
+			if sensor.type != 'DS18B20':
+				sensors.remove( sensor )
 
-		base_dir = '/sys/bus/w1/devices/'
+		for sensor in sensors:
+			if sensor.r_address == '47000006C4507628':
+				Tbojler = sensor.temperature
+			if sensor.r_address == 'BC000006C53F2928':
+				Tfireplace = sensor.temperature
+			if sensor.r_address == '2C000006C3BCDB28':
+				Tkamin = sensor.temperature 
 
-		try:
-			device_folder = glob.glob(base_dir + '28*')[0]
-		except:
-			print (strftime("[%H:%M:%S]: EXCEPTION ", localtime()) + str(sys.exc_info()[0]))
-			return False
-
-		device_file = device_folder + '/w1_slave'
-
-		return device_file
-	
-
-	def read_temp_raw(self, device_file):
-		f = open(device_file, 'r')
-		lines = f.readlines()
-		f.close()
-		return lines
-
-	def read_temp(self, device_file, retries=0):
-		for retry in range(retries):
-			lines = self.read_temp_raw(device_file)
-			if (lines[0].strip()[-3:] == 'YES'):
-				break
-			sleep(0.2)
-
-		equals_pos = lines[1].find('t=')
-		if equals_pos != -1:
-			temp_string = lines[1][equals_pos+2:]
-			temp_c = float(temp_string) / 1000.0
-			temp_f = temp_c * 9.0 / 5.0 + 32.0
-			return temp_f
-		else:
-			return None
-
+		# show only one decimal place for temprature
+		temp_C = "%.2f" % float(Tbojler)
+		fireplace_C = "%.2f" % float(Tfireplace)
+		kamin_C = "%.2f" % float(Tkamin)	
+		if self.logger:
+			print (strftime("[%H:%M:%S]: ", localtime()) + "Tsanitarna\t" + str(temp_C))
+		return temp_C
 
 class message:
 	timestamp = None

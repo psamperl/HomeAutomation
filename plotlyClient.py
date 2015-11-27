@@ -159,33 +159,6 @@ class plotlyClient(threading.Thread):
 			},
 		  },
 
-		  "yaxis2": {
-			"domain": [0.25, 0.5],
-			"title": "Humidity / Cloud Cover (%)",
-			"titlefont": {
-			  "family": self.fontlist,
-			  "size": 18,
-			  "color": "black"
-			},
-			"anchor": "free",
-			"overlaying": "none",
-			"side": "right",
-			"position": 1,
-		  },
-
-		  "yaxis3": {
-			"domain": [0, 0.25],
-			"title": "Pressure (mbar)",
-			"titlefont": {
-			  "family": self.fontlist,
-			  "size": 18,
-			  "color": "black"
-			},
-			"anchor": "free",
-			"overlaying": "none",
-			"side": "left",
-		  },
-
 		  "paper_bgcolor": "white",
 		  "plot_bgcolor": "white",
 
@@ -359,50 +332,10 @@ class plotlyClient(threading.Thread):
 		interval = str(intervalDays) + ' day'
 
 		try:
-			if self.debug: print strftime("[%H:%M:%S]: ", localtime()) + "ForecastIO Temperature"
-			result = MySQLdatabase.QueryDataInterval(db, 'sensordata', interval, 'Outdoor', 'ForecastIO', 'Current', 'Temperature')
-			(ts, value) = self.GenerateDataPoints(result)
-			self.DataPoints["ForecastIO Temperature"] = (ts, value)
-
-			if self.debug: print strftime("[%H:%M:%S]: ", localtime()) + "Nest Temperature"
-			result = MySQLdatabase.QueryDataInterval(db, 'sensordata', interval, '1st Floor', 'Nest', 'Current', 'Temperature')
-			(ts, value) = self.GenerateDataPoints(result)
-			self.DataPoints["Nest Temperature"] = (ts, value)
-
 			if self.debug: print strftime("[%H:%M:%S]: ", localtime()) + "RPi Temperature"
 			result = MySQLdatabase.QueryDataInterval(db, 'sensordata', interval, '2nd Floor', 'Raspberry Pi', 'Current', 'Temperature')
 			(ts, value) = self.GenerateDataPoints(result)
 			self.DataPoints["RPi Temperature"] = (ts, value)
-
-			if self.debug: print strftime("[%H:%M:%S]: ", localtime()) + "Arduino Temperature"
-			result = MySQLdatabase.QueryDataInterval(db, 'sensordata', interval, 'Attic', 'Arduino', 'Current', 'Temperature')
-			(ts, value) = self.GenerateDataPoints(result)
-			self.DataPoints["Arduino Temperature"] = (ts, value)
-
-			if self.debug: print strftime("[%H:%M:%S]: ", localtime()) + "Nest Humidity"
-			result = MySQLdatabase.QueryDataInterval(db, 'sensordata', interval, '1st Floor', 'Nest', 'Current', 'Humidity')
-			(ts, value) = self.GenerateDataPoints(result)
-			self.DataPoints["Nest Humidity"] = (ts, value)
-
-			if self.debug: print strftime("[%H:%M:%S]: ", localtime()) + "ForecastIO Humidity"
-			result = MySQLdatabase.QueryDataInterval(db, 'sensordata', interval, 'Outdoor', 'ForecastIO', 'Current', 'Humidity')
-			(ts, value) = self.GenerateDataPoints(result)
-			self.DataPoints["ForecastIO Humidity"] = (ts, value)
-
-			if self.debug: print strftime("[%H:%M:%S]: ", localtime()) + "ForecastIO CloudCover"
-			result = MySQLdatabase.QueryDataInterval(db, 'sensordata', interval, 'Outdoor', 'ForecastIO', 'Current', 'CloudCover')
-			(ts, value) = self.GenerateDataPoints(result)
-			self.DataPoints["ForecastIO CloudCover"] = (ts, value)
-
-			if self.debug: print strftime("[%H:%M:%S]: ", localtime()) + "RPi Pressure"
-			result = MySQLdatabase.QueryDataInterval(db, 'sensordata', interval, '2nd Floor', 'Raspberry Pi', 'Current', 'Pressure')
-			(ts, value) = self.GenerateDataPoints(result)
-			self.DataPoints["RPi Pressure"] = (ts, value)
-
-			if self.debug: print strftime("[%H:%M:%S]: ", localtime()) + "ForecastIO Pressure"
-			result = MySQLdatabase.QueryDataInterval(db, 'sensordata', interval, 'Outdoor', 'ForecastIO', 'Current', 'Pressure')
-			(ts, value) = self.GenerateDataPoints(result)
-			self.DataPoints["ForecastIO Pressure"] = (ts, value)
 
 			self.PurgeOldDataPoints(intervalDays)
 			
@@ -518,104 +451,11 @@ class plotlyClient(threading.Thread):
 		data = []
 
 		series = {
-			'name' : 'Outdoor Temperature (ForecastIO)',
-			'x' : self.DataPoints["ForecastIO Temperature"][0],
-			'y' : self.DataPoints["ForecastIO Temperature"][1],
-			'type' : 'scatter',
-			'mode' : 'lines'
-			}
-		data.append(series)
-
-		series = {
-			'name' : '1st Floor Temperature (Nest)',
-			'x' : self.DataPoints["Nest Temperature"][0],
-			'y' : self.DataPoints["Nest Temperature"][1],
-			'type' : 'scatter',
-			'mode' : 'lines'
-			}
-		data.append(series)
-
-		series = {
 			'name' : '2nd Floor Temperature (Raspberry Pi)',
 			'x' : self.DataPoints["RPi Temperature"][0],
 			'y' : self.DataPoints["RPi Temperature"][1],
 			'type' : 'scatter',
 			'mode' : 'lines'
-			}
-		data.append(series)
-
-		series = {
-			'name' : 'Attic Temperature (Arduino)',
-			'x' : self.DataPoints["Arduino Temperature"][0],
-			'y' : self.DataPoints["Arduino Temperature"][1],
-			'type' : 'scatter',
-			'mode' : 'lines'
-			}
-		data.append(series)
-
-
-		series = {
-			'name' : 'Indoor Humidity (Nest)',
-			'x' : self.DataPoints["Nest Humidity"][0],
-			'y' : self.DataPoints["Nest Humidity"][1],
-			'yaxis' : 'y2',
-			'type' : 'scatter',
-			'mode' : 'lines',
-			'line' : {
-				'color' : "rgb(153,0,255)",
-				},
-			}
-		data.append(series)
-
-		series = {
-			'name' : 'Outdoor Humidity (ForecastIO)',
-			'x' : self.DataPoints["ForecastIO Humidity"][0],
-			'y' : self.DataPoints["ForecastIO Humidity"][1],
-			'yaxis' : 'y2',
-			'type' : 'scatter',
-			'mode' : 'lines',
-			'line' : {
-				'color' : "rgb(0,255,0)",
-				},
-			}
-		data.append(series)
-
-		series = {
-			'name' : 'Cloud Cover (ForecastIO)',
-			'x' : self.DataPoints["ForecastIO CloudCover"][0],
-			'y' : self.DataPoints["ForecastIO CloudCover"][1],
-			'yaxis' : 'y2',
-			'type' : 'scatter',
-			'mode' : 'lines',
-			'line' : {
-				'color' : "rgb(23,190,207)",
-				},
-			}
-		data.append(series)
-
-		series = {
-			'name' : 'Indoor Pressure (Raspberry Pi)',
-			'x' : self.DataPoints["RPi Pressure"][0],
-			'y' : self.DataPoints["RPi Pressure"][1],
-			'yaxis' : 'y3',
-			'type' : 'scatter',
-			'mode' : 'lines',
-			'line' : {
-				'color' : "rgb(255,0,0)",
-				},
-			}
-		data.append(series)
-
-		series = {
-			'name' : 'Outdoor Pressure (ForecastIO)',
-			'x' : self.DataPoints["ForecastIO Pressure"][0],
-			'y' : self.DataPoints["ForecastIO Pressure"][1],
-			'yaxis' : 'y3',
-			'type' : 'scatter',
-			'mode' : 'lines',
-			'line' : {
-				'color' : "rgb(0,0,255)",
-				},
 			}
 		data.append(series)
 
@@ -683,42 +523,6 @@ class plotlyClient(threading.Thread):
 		data = []
 
 		try:
-			if self.debug: print strftime("[%H:%M:%S]: ", localtime()) + "ForecastIO Temperature"
-			result = MySQLdatabase.QueryDataInterval(db, 'sensordata', interval, 'Outdoor', 'ForecastIO', 'Current', 'Temperature')
-			(ts, value) = self.GenerateDataPoints(result)
-		except:
-			print (strftime("[%H:%M:%S]: EXCEPTION ", localtime()) + traceback.format_exc())
-
-			if self.logger:
-				self.logger.error((strftime("[%H:%M:%S]: EXCEPTION ", localtime()) + traceback.format_exc()), exc_info=True)
-		series = {
-			'name' : 'Outdoor Temperature (ForecastIO)',
-			'x' : ts,
-			'y' : value,
-			'type' : 'scatter',
-			'mode' : 'lines'
-			}
-		data.append(series)
-
-		try:
-			if self.debug: print strftime("[%H:%M:%S]: ", localtime()) + "Nest Temperature"
-			result = MySQLdatabase.QueryDataInterval(db, 'sensordata', interval, '1st Floor', 'Nest', 'Current', 'Temperature')
-			(ts, value) = self.GenerateDataPoints(result)
-		except:
-			print (strftime("[%H:%M:%S]: EXCEPTION ", localtime()) + traceback.format_exc())
-
-			if self.logger:
-				self.logger.error((strftime("[%H:%M:%S]: EXCEPTION ", localtime()) + traceback.format_exc()), exc_info=True)
-		series = {
-			'name' : '1st Floor Temperature (Nest)',
-			'x' : ts,
-			'y' : value,
-			'type' : 'scatter',
-			'mode' : 'lines'
-			}
-		data.append(series)
-
-		try:
 			if self.debug: print strftime("[%H:%M:%S]: ", localtime()) + "RPi Temperature"
 			result = MySQLdatabase.QueryDataInterval(db, 'sensordata', interval, '2nd Floor', 'Raspberry Pi', 'Current', 'Temperature')
 			(ts, value) = self.GenerateDataPoints(result)
@@ -733,135 +537,6 @@ class plotlyClient(threading.Thread):
 			'y' : value,
 			'type' : 'scatter',
 			'mode' : 'lines'
-			}
-		data.append(series)
-
-		try:
-			if self.debug: print strftime("[%H:%M:%S]: ", localtime()) + "Arduino Temperature"
-			result = MySQLdatabase.QueryDataInterval(db, 'sensordata', interval, 'Attic', 'Arduino', 'Current', 'Temperature')
-			(ts, value) = self.GenerateDataPoints(result)
-		except:
-			print (strftime("[%H:%M:%S]: EXCEPTION ", localtime()) + traceback.format_exc())
-
-			if self.logger:
-				self.logger.error((strftime("[%H:%M:%S]: EXCEPTION ", localtime()) + traceback.format_exc()), exc_info=True)
-		series = {
-			'name' : 'Attic Temperature (Arduino)',
-			'x' : ts,
-			'y' : value,
-			'type' : 'scatter',
-			'mode' : 'lines'
-			}
-		data.append(series)
-
-
-		try:
-			if self.debug: print strftime("[%H:%M:%S]: ", localtime()) + "Nest Humidity"
-			result = MySQLdatabase.QueryDataInterval(db, 'sensordata', interval, '1st Floor', 'Nest', 'Current', 'Humidity')
-			(ts, value) = self.GenerateDataPoints(result)
-		except:
-			print (strftime("[%H:%M:%S]: EXCEPTION ", localtime()) + traceback.format_exc())
-
-			if self.logger:
-				self.logger.error((strftime("[%H:%M:%S]: EXCEPTION ", localtime()) + traceback.format_exc()), exc_info=True)
-		series = {
-			'name' : 'Indoor Humidity (Nest)',
-			'x' : ts,
-			'y' : value,
-			'yaxis' : 'y2',
-			'type' : 'scatter',
-			'mode' : 'lines',
-			'line' : {
-				'color' : "rgb(153,0,255)",
-				},
-			}
-		data.append(series)
-
-		try:
-			if self.debug: print strftime("[%H:%M:%S]: ", localtime()) + "ForecastIO Humidity"
-			result = MySQLdatabase.QueryDataInterval(db, 'sensordata', interval, 'Outdoor', 'ForecastIO', 'Current', 'Humidity')
-			(ts, value) = self.GenerateDataPoints(result)
-		except:
-			print (strftime("[%H:%M:%S]: EXCEPTION ", localtime()) + traceback.format_exc())
-
-			if self.logger:
-				self.logger.error((strftime("[%H:%M:%S]: EXCEPTION ", localtime()) + traceback.format_exc()), exc_info=True)
-		series = {
-			'name' : 'Outdoor Humidity (ForecastIO)',
-			'x' : ts,
-			'y' : value,
-			'yaxis' : 'y2',
-			'type' : 'scatter',
-			'mode' : 'lines',
-			'line' : {
-				'color' : "rgb(0,255,0)",
-				},
-			}
-		data.append(series)
-
-		try:
-			if self.debug: print strftime("[%H:%M:%S]: ", localtime()) + "ForecastIO CloudCover"
-			result = MySQLdatabase.QueryDataInterval(db, 'sensordata', interval, 'Outdoor', 'ForecastIO', 'Current', 'CloudCover')
-			(ts, value) = self.GenerateDataPoints(result)
-		except:
-			print (strftime("[%H:%M:%S]: EXCEPTION ", localtime()) + traceback.format_exc())
-
-			if self.logger:
-				self.logger.error((strftime("[%H:%M:%S]: EXCEPTION ", localtime()) + traceback.format_exc()), exc_info=True)
-		series = {
-			'name' : 'Cloud Cover (ForecastIO)',
-			'x' : ts,
-			'y' : value,
-			'yaxis' : 'y2',
-			'type' : 'scatter',
-			'mode' : 'lines',
-			'line' : {
-				'color' : "rgb(23,190,207)",
-				},
-			}
-		data.append(series)
-
-		try:
-			if self.debug: print strftime("[%H:%M:%S]: ", localtime()) + "RPi Pressure"
-			result = MySQLdatabase.QueryDataInterval(db, 'sensordata', interval, '2nd Floor', 'Raspberry Pi', 'Current', 'Pressure')
-			(ts, value) = self.GenerateDataPoints(result)
-		except:
-			print (strftime("[%H:%M:%S]: EXCEPTION ", localtime()) + traceback.format_exc())
-
-			if self.logger:
-				self.logger.error((strftime("[%H:%M:%S]: EXCEPTION ", localtime()) + traceback.format_exc()), exc_info=True)
-		series = {
-			'name' : 'Indoor Pressure (Raspberry Pi)',
-			'x' : ts,
-			'y' : value,
-			'yaxis' : 'y3',
-			'type' : 'scatter',
-			'mode' : 'lines',
-			'line' : {
-				'color' : "rgb(255,0,0)",
-				},
-			}
-		data.append(series)
-
-		try:
-			if self.debug: print strftime("[%H:%M:%S]: ", localtime()) + "ForecastIO Pressure"
-			result = MySQLdatabase.QueryDataInterval(db, 'sensordata', interval, 'Outdoor', 'ForecastIO', 'Current', 'Pressure')
-			(ts, value) = self.GenerateDataPoints(result)
-		except:
-			print (strftime("[%H:%M:%S]: EXCEPTION ", localtime()) + traceback.format_exc())
-
-			if self.logger:
-				self.logger.error((strftime("[%H:%M:%S]: EXCEPTION ", localtime()) + traceback.format_exc()), exc_info=True)
-		series = {
-			'name' : 'Outdoor Pressure (ForecastIO)',
-			'x' : ts,
-			'y' : value,
-			'yaxis' : 'y3',
-			'type' : 'scatter',
-			'mode' : 'lines',
-			'line' : {
-				'color' : "rgb(0,0,255)",
-				},
 			}
 		data.append(series)
 

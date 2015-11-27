@@ -7,11 +7,7 @@ from time import time, sleep, localtime, strftime
 from datetime import datetime
 from threading import Timer
 import FileLogger
-import NestSensor
-import Arduino_Temp
 import RPi_Temp
-import RPi_Pressure
-import ForecastIO
 import plotlyClient
 import MySQLdatabase
 from Credentials import *
@@ -46,7 +42,7 @@ def main():
 	if not initSensors(lock, logger):
 		cleanup()
 		sys.exit()
-	sleep(30)				# wait for sensors to initialize
+	#sleep(30)				# wait for sensors to initialize
 	
 	# Initialize plotly
 	if not initPlotly(lock, logger):
@@ -71,88 +67,10 @@ def initSensors(lock, logger=None):
 			logger.error(strftime("[%H:%M:%S]: Error: Cannot connect to MySQL database", localtime()), exc_info=True)
 		return False
 
-	# Arduino Temp Sensor
-	qIn_Arduino = Queue.Queue()
-	qOut_Arduino = Queue.Queue()
-
-	if ArduinoTempEnable:
-		arduino_temp = Arduino_Temp.Arduino_Temp(lock, qIn_Arduino, qOut_Arduino, logger)
-
-		# Initialize Arduino_Temp module
-		if not arduino_temp.init():
-			print (strftime("[%H:%M:%S]: Error: initializing Arduino_Temp", localtime()))
-			if logger:
-				logger.error(strftime("[%H:%M:%S]: Error: initializing Arduino_Temp", localtime()), exc_info=True)
-			return False
-
-		#arduino_temp.run()					# run on main thread
-		arduino_temp.start()				# start thread
-
-		#sleep(5)
-
-	# ForecastIO Data
-	qIn_ForecastIO = Queue.Queue()
-	qOut_ForecastIO = Queue.Queue()
-
-	if ForecastIOEnable:
-		forecastio = ForecastIO.ForecastIO(lock, qIn_ForecastIO, qOut_ForecastIO, logger)
-
-		# Initialize ForecastIO module
-		if not forecastio.init():
-			print (strftime("[%H:%M:%S]: Error: initializing ForecastIO", localtime()))
-			if logger:
-				logger.error(strftime("[%H:%M:%S]: Error: initializing ForecastIO", localtime()), exc_info=True)
-			return False
-
-		#forecastio.run()					# run on main thread
-		forecastio.start()					# start thread
-
-		#sleep(5)
-
-	# Nest Sensor Data
-	qIn_NestSensor = Queue.Queue()
-	qOut_NestSensor = Queue.Queue()
-
-	if NestSensorEnable:
-		nestsensor = NestSensor.NestSensor(lock, qIn_NestSensor, qOut_NestSensor, logger)
-
-		# Initialize NestSensor module
-		if not nestsensor.init():
-			print (strftime("[%H:%M:%S]: Error: initializing NestSensor", localtime()))
-			if logger:
-				logger.error(strftime("[%H:%M:%S]: Error: initializing NestSensor", localtime()), exc_info=True)
-			return False
-
-		#nestsensor.run()					# run on main thread
-		nestsensor.start()					# start thread
-
-		#sleep(5)
-
-
-	# RPi Pressure Sensor
-	qIn_RPiPressure= Queue.Queue()
-	qOut_RPiPressure = Queue.Queue()
-
-	if RPiPressEnable:
-		rpipressure = RPi_Pressure.RPi_Pressure(lock, qIn_RPiPressure, qOut_RPiPressure, logger)
-
-		# Initialize RPi Pressure module
-		if not rpipressure.init():
-			print (strftime("[%H:%M:%S]: Error: initializing RPi Pressure", localtime()))
-			if logger:
-				logger.error(strftime("[%H:%M:%S]: Error: initializing RPi Pressure", localtime()), exc_info=True)
-			return False
-
-		#rpipressure.run()					# run on main thread
-		rpipressure.start()					# start thread
-
-		#sleep(5)
-
-
 	# RPi Temp Sensor
 	qIn_RPiTemp= Queue.Queue()
 	qOut_RPiTemp = Queue.Queue()
-
+        
 	if RPiTempEnable:
 		rpi_temp = RPi_Temp.RPi_Temp(lock, qIn_RPiTemp, qOut_RPiTemp, logger)
 
@@ -164,6 +82,8 @@ def initSensors(lock, logger=None):
 			return False
 
 		#rpi_temp.run()					# run on main thread
+		rpi_temp.daemon = True
+
 		rpi_temp.start()					# start thread
 
 		#sleep(5)
@@ -186,6 +106,7 @@ def initPlotly(lock, logger=None):
 			return False
 
 		#plotlyclient.run()					# run on main thread
+		plotlyclient.daemon = True
 		plotlyclient.start()				# start thread
 	
 	return True
