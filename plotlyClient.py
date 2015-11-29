@@ -113,7 +113,7 @@ class plotlyClient(threading.Thread):
 		}
 
 		self.layout = {
-		  "title" : "Home Weather",
+		  "title" : "Pi Heating",
 
 		 'titlefont': { 
 			'family':self.fontlist,
@@ -151,7 +151,7 @@ class plotlyClient(threading.Thread):
 
 		  "yaxis": {
 			"domain": [0.5, 1.0],
-			"title": "Temperature (F)",
+			"title": "Temperature (C)",
 			"titlefont": {
 			  "family": self.fontlist,
 			  "size": 18,
@@ -332,10 +332,28 @@ class plotlyClient(threading.Thread):
 		interval = str(intervalDays) + ' day'
 
 		try:
-			if self.debug: print strftime("[%H:%M:%S]: ", localtime()) + "RPi Temperature"
+			'''if self.debug: print strftime("[%H:%M:%S]: ", localtime()) + "RPi Temperature"
 			result = MySQLdatabase.QueryDataInterval(db, 'sensordata', interval, '2nd Floor', 'Raspberry Pi', 'Current', 'Temperature')
 			(ts, value) = self.GenerateDataPoints(result)
 			self.DataPoints["RPi Temperature"] = (ts, value)
+			'''
+			#Zalogovnik
+			if self.debug: print strftime("[%H:%M:%S]: ", localtime()) + "Tbojler"
+			result = MySQLdatabase.QueryDataInterval(db, 'sensordata', interval, 'Tbojler', 'Raspberry Pi', 'Current', 'Temperature')
+			(ts, value) = self.GenerateDataPoints(result)
+			self.DataPoints["Tbojler"] = (ts, value)
+			
+			#Kamin
+			if self.debug: print strftime("[%H:%M:%S]: ", localtime()) + "Tkamin"
+			result = MySQLdatabase.QueryDataInterval(db, 'sensordata', interval, 'Tkamin', 'Raspberry Pi', 'Current', 'Temperature')
+			(ts, value) = self.GenerateDataPoints(result)
+			self.DataPoints["Tkamin"] = (ts, value)
+			
+			#Sanitarna
+			if self.debug: print strftime("[%H:%M:%S]: ", localtime()) + "Tsanitarna"
+			result = MySQLdatabase.QueryDataInterval(db, 'sensordata', interval, 'Tsanitarna', 'Raspberry Pi', 'Current', 'Temperature')
+			(ts, value) = self.GenerateDataPoints(result)
+			self.DataPoints["Tsanitarna"] = (ts, value)
 
 			self.PurgeOldDataPoints(intervalDays)
 			
@@ -449,11 +467,38 @@ class plotlyClient(threading.Thread):
 	def PostData(self, py):
 
 		data = []
-
+		'''
 		series = {
 			'name' : '2nd Floor Temperature (Raspberry Pi)',
 			'x' : self.DataPoints["RPi Temperature"][0],
 			'y' : self.DataPoints["RPi Temperature"][1],
+			'type' : 'scatter',
+			'mode' : 'lines'
+			}
+		data.append(series)
+		'''	
+		series = {
+			'name' : 'Tbojler',
+			'x' : self.DataPoints["Tbojler"][0],
+			'y' : self.DataPoints["Tbojler"][1],
+			'type' : 'scatter',
+			'mode' : 'lines'
+			}
+		data.append(series)
+		
+		series = {
+			'name' : 'Tkamin',
+			'x' : self.DataPoints["Tkamin"][0],
+			'y' : self.DataPoints["Tkamin"][1],
+			'type' : 'scatter',
+			'mode' : 'lines'
+			}
+		data.append(series)
+		
+		series = {
+			'name' : 'Tsanitarna',
+			'x' : self.DataPoints["Tsanitarna"][0],
+			'y' : self.DataPoints["Tsanitarna"][1],
 			'type' : 'scatter',
 			'mode' : 'lines'
 			}
@@ -521,7 +566,7 @@ class plotlyClient(threading.Thread):
 	def PostArraySQL(self, py, db, interval):
 
 		data = []
-
+		'''
 		try:
 			if self.debug: print strftime("[%H:%M:%S]: ", localtime()) + "RPi Temperature"
 			result = MySQLdatabase.QueryDataInterval(db, 'sensordata', interval, '2nd Floor', 'Raspberry Pi', 'Current', 'Temperature')
@@ -533,6 +578,60 @@ class plotlyClient(threading.Thread):
 				self.logger.error((strftime("[%H:%M:%S]: EXCEPTION ", localtime()) + traceback.format_exc()), exc_info=True)
 		series = {
 			'name' : '2nd Floor Temperature (Raspberry Pi)',
+			'x' : ts,
+			'y' : value,
+			'type' : 'scatter',
+			'mode' : 'lines'
+			}
+		data.append(series)
+		'''
+		try:
+			if self.debug: print strftime("[%H:%M:%S]: ", localtime()) + "Tbojler"
+			result = MySQLdatabase.QueryDataInterval(db, 'sensordata', interval, 'Tbojler', 'Raspberry Pi', 'Current', 'Temperature')
+			(ts, value) = self.GenerateDataPoints(result)
+		except:
+			print (strftime("[%H:%M:%S]: EXCEPTION ", localtime()) + traceback.format_exc())
+
+			if self.logger:
+				self.logger.error((strftime("[%H:%M:%S]: EXCEPTION ", localtime()) + traceback.format_exc()), exc_info=True)
+		series = {
+			'name' : 'Tbojler',
+			'x' : ts,
+			'y' : value,
+			'type' : 'scatter',
+			'mode' : 'lines'
+			}
+		data.append(series)
+		
+		try:
+			if self.debug: print strftime("[%H:%M:%S]: ", localtime()) + "Tkamin"
+			result = MySQLdatabase.QueryDataInterval(db, 'sensordata', interval, 'Tkamin', 'Raspberry Pi', 'Current', 'Temperature')
+			(ts, value) = self.GenerateDataPoints(result)
+		except:
+			print (strftime("[%H:%M:%S]: EXCEPTION ", localtime()) + traceback.format_exc())
+
+			if self.logger:
+				self.logger.error((strftime("[%H:%M:%S]: EXCEPTION ", localtime()) + traceback.format_exc()), exc_info=True)
+		series = {
+			'name' : 'Tkamin',
+			'x' : ts,
+			'y' : value,
+			'type' : 'scatter',
+			'mode' : 'lines'
+			}
+		data.append(series)
+		
+		try:
+			if self.debug: print strftime("[%H:%M:%S]: ", localtime()) + "Tsanitarna"
+			result = MySQLdatabase.QueryDataInterval(db, 'sensordata', interval, 'Tsanitarna', 'Raspberry Pi', 'Current', 'Temperature')
+			(ts, value) = self.GenerateDataPoints(result)
+		except:
+			print (strftime("[%H:%M:%S]: EXCEPTION ", localtime()) + traceback.format_exc())
+
+			if self.logger:
+				self.logger.error((strftime("[%H:%M:%S]: EXCEPTION ", localtime()) + traceback.format_exc()), exc_info=True)
+		series = {
+			'name' : 'Tsanitarna',
 			'x' : ts,
 			'y' : value,
 			'type' : 'scatter',

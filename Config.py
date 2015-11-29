@@ -8,3 +8,7 @@ plotly_postinterval = 3*60				# Save data interval (sec)
 # RPi Temp Sensor
 RPiTempEnable = True
 RPiTemp_postinterval = 3*60				# Save data interval (sec)
+
+sDict = { 	'47000006C4507628': 'Tbojler',
+			'BC000006C53F2928': 'Tsanitarna',
+			'2C000006C3BCDB28': 'Tkamin', }

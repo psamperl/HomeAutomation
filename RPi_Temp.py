@@ -121,6 +121,7 @@ class RPi_Temp(threading.Thread):
 
 		curTime = None
 		curTemp = None
+		dictTemp = None
 
 		while True:
 
@@ -141,14 +142,23 @@ class RPi_Temp(threading.Thread):
 						db = MySQLdatabase.Connect(mysql_host, mysql_login, mysql_pw, mysql_db)
 
 						curTime = time()
-
+						
+						#read all sensors on one wire
+						dictTemp = self.read_all_temp()
+						if (dictTemp != None):
+							for SensorName in dictTemp:
+								print (strftime("[%H:%M:%S]: ", localtime()) + SensorName + "\t" + str(dictTemp[SensorName]))
+								MySQLdatabase.InsertData(db, 'sensordata', SensorName, 'Raspberry Pi', 'Current', 'Temperature', dictTemp[SensorName], 'C')
+								if self.logger:
+									self.logger.info (strftime("[%H:%M:%S]: ", localtime()) + SensorName + "\t" + str(dictTemp[SensorName]))
+						'''
 						curTemp = self.read_temp()
 						if (curTemp != None):
 							print (strftime("[%H:%M:%S]: ", localtime()) + "2nd Floor Temp\t" + str(curTemp))
 							MySQLdatabase.InsertData(db, 'sensordata', '2nd Floor', 'Raspberry Pi', 'Current', 'Temperature', "%.2f" % float(curTemp), 'C')
 							if self.logger:
 								self.logger.info (strftime("[%H:%M:%S]: ", localtime()) + "2nd Floor Temp\t" + str(curTemp))
-
+						'''
 						MySQLdatabase.Close(db)
 
 						self.sendMessage(curTime, 'RPi_Temp', 'measure:temp', curTemp)
@@ -203,6 +213,7 @@ class RPi_Temp(threading.Thread):
 		if self.qOut and not self.qOut.full():
 			self.qOut.put(msgOut)
 
+	#read temperatures
 	def read_temp(self):
 		sensors = ow.Sensor("/").sensorList()
 
@@ -225,6 +236,38 @@ class RPi_Temp(threading.Thread):
 		if self.logger:
 			print (strftime("[%H:%M:%S]: ", localtime()) + "Tsanitarna\t" + str(temp_C))
 		return temp_C
+		
+	#read all temperatures
+	def read_all_temp(self):
+		#create dictionary
+		sensorDict = {}
+		try:
+			sensors = ow.Sensor("/").sensorList()
+		
+			#ignore sensors which are not DS18B20
+			for sensor in sensors[:]:	
+				if sensor.type != 'DS18B20':
+					sensors.remove( sensor )
+
+			#Fill dictionary
+			for sensor in sensors:
+				if sensor.r_address in sDict:
+					#Sensor has name defined
+					sensorDict[sDict[sensor.r_address]] = "%.2f" % float(sensor.temperature)
+				else:
+					#Sensor name missing. Creating new one
+					sensorDict['T_' + sensor.r_address] = "%.2f" % float(sensor.temperature)
+					
+			if self.logger:
+				print (strftime("[%H:%M:%S]: ", localtime()) + sensorDict)
+				
+		except Exception, e:
+			print (strftime("[%H:%M:%S]: EXCEPTION ", localtime()) + traceback.format_exc())
+
+			if self.logger:
+				self.logger.error((strftime("[%H:%M:%S]: EXCEPTION ", localtime()) + traceback.format_exc()), exc_info=True)
+
+		return sensorDict	
 
 class message:
 	timestamp = None
