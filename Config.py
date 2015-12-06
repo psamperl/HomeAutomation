@@ -11,4 +11,5 @@ RPiTemp_postinterval = 3*60				# Save data interval (sec)
 
 sDict = { 	'47000006C4507628': 'Tbojler',
 			'BC000006C53F2928': 'Tsanitarna',
-			'2C000006C3BCDB28': 'Tkamin', }
+			'2C000006C3BCDB28': 'Tkamin',
+			'6C000006C43A6228': 'Toutside', }

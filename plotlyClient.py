@@ -354,6 +354,12 @@ class plotlyClient(threading.Thread):
 			result = MySQLdatabase.QueryDataInterval(db, 'sensordata', interval, 'Tsanitarna', 'Raspberry Pi', 'Current', 'Temperature')
 			(ts, value) = self.GenerateDataPoints(result)
 			self.DataPoints["Tsanitarna"] = (ts, value)
+			
+			#Outside
+			if self.debug: print strftime("[%H:%M:%S]: ", localtime()) + "Toutside"
+			result = MySQLdatabase.QueryDataInterval(db, 'sensordata', interval, 'Toutside', 'Raspberry Pi', 'Current', 'Temperature')
+			(ts, value) = self.GenerateDataPoints(result)
+			self.DataPoints["Toutside"] = (ts, value)
 
 			self.PurgeOldDataPoints(intervalDays)
 			
@@ -503,6 +509,15 @@ class plotlyClient(threading.Thread):
 			'mode' : 'lines'
 			}
 		data.append(series)
+		
+		series = {
+			'name' : 'Toutside',
+			'x' : self.DataPoints["Toutside"][0],
+			'y' : self.DataPoints["Toutside"][1],
+			'type' : 'scatter',
+			'mode' : 'lines'
+			}
+		data.append(series)
 
 		try:
 
@@ -639,6 +654,24 @@ class plotlyClient(threading.Thread):
 			}
 		data.append(series)
 
+		try:
+			if self.debug: print strftime("[%H:%M:%S]: ", localtime()) + "Toutside"
+			result = MySQLdatabase.QueryDataInterval(db, 'sensordata', interval, 'Toutside', 'Raspberry Pi', 'Current', 'Temperature')
+			(ts, value) = self.GenerateDataPoints(result)
+		except:
+			print (strftime("[%H:%M:%S]: EXCEPTION ", localtime()) + traceback.format_exc())
+
+			if self.logger:
+				self.logger.error((strftime("[%H:%M:%S]: EXCEPTION ", localtime()) + traceback.format_exc()), exc_info=True)
+		series = {
+			'name' : 'Toutside',
+			'x' : ts,
+			'y' : value,
+			'type' : 'scatter',
+			'mode' : 'lines'
+			}
+		data.append(series)
+		
 		try:
 
 			'''
