@@ -259,7 +259,7 @@ class RPi_Temp(threading.Thread):
 					sensorDict['T_' + sensor.r_address] = "%.2f" % float(sensor.temperature)
 					
 			if self.logger:
-				print (strftime("[%H:%M:%S]: ", localtime()) + sensorDict)
+				print (strftime("[%H:%M:%S]: ", localtime()) + str(sensorDict))
 				
 		except Exception, e:
 			print (strftime("[%H:%M:%S]: EXCEPTION ", localtime()) + traceback.format_exc())
