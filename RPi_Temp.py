@@ -122,6 +122,7 @@ class RPi_Temp(threading.Thread):
 		curTime = None
 		curTemp = None
 		dictTemp = None
+		curBoilerPump = None
 
 		while True:
 
@@ -151,14 +152,25 @@ class RPi_Temp(threading.Thread):
 								MySQLdatabase.InsertData(db, 'sensordata', SensorName, 'Raspberry Pi', 'Current', 'Temperature', dictTemp[SensorName], 'C')
 								if self.logger:
 									self.logger.info (strftime("[%H:%M:%S]: ", localtime()) + SensorName + "\t" + str(dictTemp[SensorName]))
-						'''
-						curTemp = self.read_temp()
-						if (curTemp != None):
-							print (strftime("[%H:%M:%S]: ", localtime()) + "2nd Floor Temp\t" + str(curTemp))
-							MySQLdatabase.InsertData(db, 'sensordata', '2nd Floor', 'Raspberry Pi', 'Current', 'Temperature', "%.2f" % float(curTemp), 'C')
-							if self.logger:
-								self.logger.info (strftime("[%H:%M:%S]: ", localtime()) + "2nd Floor Temp\t" + str(curTemp))
-						'''
+									
+						if(float(dictTemp['Tsanitarna']) >= float(dictTemp['Tbojler']) + 1):
+							if(curBoilerPump == True) or (curBoilerPump == None):
+								#save to DB
+								print (strftime("[%H:%M:%S]: ", localtime()) + 'BoilerPump' + "\t" + '0')
+								MySQLdatabase.InsertData(db, 'sensordata', 'BoilerPump', 'Raspberry Pi', 'Current', 'Pump', '0', 'bool')
+								if self.logger:
+									self.logger.info (strftime("[%H:%M:%S]: ", localtime()) + 'BoilerPump' + "\t" + '0')
+							curBoilerPump = False
+							
+						if(float(dictTemp['Tsanitarna']) <= float(dictTemp['Tbojler']) - 1):
+							if(curBoilerPump == False) or (curBoilerPump == None):
+								#save to DB
+								print (strftime("[%H:%M:%S]: ", localtime()) + 'BoilerPump' + "\t" + '1')
+								MySQLdatabase.InsertData(db, 'sensordata', 'BoilerPump', 'Raspberry Pi', 'Current', 'Pump', '1', 'bool')
+								if self.logger:
+									self.logger.info (strftime("[%H:%M:%S]: ", localtime()) + 'BoilerPump' + "\t" + '1')
+							curBoilerPump = True
+						
 						MySQLdatabase.Close(db)
 
 						self.sendMessage(curTime, 'RPi_Temp', 'measure:temp', curTemp)
@@ -212,30 +224,6 @@ class RPi_Temp(threading.Thread):
 
 		if self.qOut and not self.qOut.full():
 			self.qOut.put(msgOut)
-
-	#read temperatures
-	def read_temp(self):
-		sensors = ow.Sensor("/").sensorList()
-
-		for sensor in sensors[:]:	
-			if sensor.type != 'DS18B20':
-				sensors.remove( sensor )
-
-		for sensor in sensors:
-			if sensor.r_address == '47000006C4507628':
-				Tbojler = sensor.temperature
-			if sensor.r_address == 'BC000006C53F2928':
-				Tfireplace = sensor.temperature
-			if sensor.r_address == '2C000006C3BCDB28':
-				Tkamin = sensor.temperature 
-
-		# show only one decimal place for temprature
-		temp_C = "%.2f" % float(Tbojler)
-		fireplace_C = "%.2f" % float(Tfireplace)
-		kamin_C = "%.2f" % float(Tkamin)	
-		if self.logger:
-			print (strftime("[%H:%M:%S]: ", localtime()) + "Tsanitarna\t" + str(temp_C))
-		return temp_C
 		
 	#read all temperatures
 	def read_all_temp(self):

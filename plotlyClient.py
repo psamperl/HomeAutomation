@@ -147,18 +147,23 @@ class plotlyClient(threading.Thread):
 			  "color": "black"
 			},
 			"anchor": "y3",
+			"domain": [0, 1],
+			"position": 0,
 		  },
 
 		  "yaxis": {
-			"domain": [0.5, 1.0],
+			#"domain": [0, 0.28],
+			"domain": [0, 1],
 			"title": "Temperature (C)",
 			"titlefont": {
 			  "family": self.fontlist,
 			  "size": 18,
 			  "color": "black"
 			},
+			"position": 0,
+			"overlaying": "False",
 		  },
-
+		  
 		  "paper_bgcolor": "white",
 		  "plot_bgcolor": "white",
 
@@ -468,6 +473,76 @@ class plotlyClient(threading.Thread):
 		else:
 			return annot
 
+	# Generate pump markers
+	# Input the SQL query and annotation text
+	# Returns list of annotations if found
+	# else returns None
+	def GenerateDeviceMarkers(self, queryresult, annot_text=None, y=0, color='black'):
+		#print "Generate Sun Annotation"
+		#print 'color: ' + color
+	
+		annot = []
+		#del(annot)
+		#annot = []
+	
+		suntimesdict = {}
+		#del(suntimesdict)
+		#suntimesdict = {}
+	
+		(ts, value) = self.GenerateDataPoints(queryresult)
+
+		# add datapoints to dictionary
+		for suntime in value:
+
+			#print "suntime"
+			#print suntime
+			#print ts[0]
+			#print ts[len(ts)-1]
+			#print suntime >= ts[0]
+			#print suntime <= ts[len(ts)-1]
+
+			dtstart = datetime.strptime(ts[0], '%Y-%m-%d %H:%M:%S')
+			dtend = datetime.strptime(ts[len(ts)-1], '%Y-%m-%d %H:%M:%S')
+			dtsuntime = datetime.fromtimestamp(suntime)
+
+			#print dtstart
+			#print dtend
+			#print dtsuntime
+
+			# only add datapoints that are within the 
+			# given query timestamps will be plotted
+			if dtsuntime >= dtstart and dtsuntime <= dtend:
+				suntimesdict[suntime] = None	
+
+		#print "dictionary: "
+		#print suntimesdict
+
+		for suntime in suntimesdict.keys():
+			#ts = datetime.fromtimestamp(int(suntime)).strftime('%Y-%m-%d %H:%M:%S')
+			#print "suntimesdict loop"
+		
+			annotation = self.annotation_template.copy()	# must copy dictionary explicitly
+			annotation['text'] = annot_text
+			annotation['x'] = suntime * 1000	# multiply by 1000 for plotly
+			annotation['y'] = y
+			annotation['ax'] = 0
+			annotation['ay'] = 0
+			annotation['font']['color'] = color
+		
+			#debug code
+			#print 'annotation'
+			#print annotation
+
+			annot.append(annotation)
+	
+		#debug code
+		#print 'annot'
+		#print annot
+	
+		if annot == []:
+			return None
+		else:
+			return annot			
 
 	#Format data and send to plotly
 	def PostData(self, py):
@@ -673,7 +748,7 @@ class plotlyClient(threading.Thread):
 		data.append(series)
 		
 		try:
-
+			#self.layout['shapes'][:] = []				ds# empty out annotation array
 			'''
 			self.layout['annotations'][:] = []				ds# empty out annotation array
 			#self.layout['annotations'] += [self.annotation_link]
@@ -738,3 +813,29 @@ class message:
 
 if __name__ == '__main__':
 	main()
+
+'''"xaxis2": {
+"title": "Time",
+"titlefont": {
+  "family": self.fontlist,
+  "size": 18,
+  "color": "black"
+},
+"anchor": "y3",
+"overlaying": "False",
+"domain": [0, 1],
+"position": 0,
+},
+
+"yaxis2": {
+"domain": [0.59, 0.77],
+"title": "ON/OFF",
+"titlefont": {
+  "family": self.fontlist,
+  "size": 18,
+  "color": "black"
+},
+"overlaying": "False",
+"position": 0,
+},
+'''
