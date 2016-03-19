@@ -10,7 +10,7 @@ import FileLogger
 import RPi_Temp
 import plotlyClient
 import MySQLdatabase
-from Credentials import *
+from Private import *
 from Config import *
 
 

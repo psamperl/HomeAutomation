@@ -15,7 +15,7 @@ import traceback
 import Queue
 import FileLogger
 import MySQLdatabase
-from Credentials import *
+from Private import *
 from Config import *
 
 plotlyclient = None
