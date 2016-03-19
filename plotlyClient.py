@@ -2,7 +2,9 @@
  # -*- coding: utf-8 -*-
 
 import plotly
+from plotly import tools
 from plotly.graph_objs import *
+import plotly.graph_objs as go
 import sys
 import os
 from time import time, sleep, localtime, strftime
@@ -146,14 +148,25 @@ class plotlyClient(threading.Thread):
 			  "size": 18,
 			  "color": "black"
 			},
-			"anchor": "y3",
+			"anchor": "y",
+			"domain": [0, 1],
+			"position": 0,
+		  },
+		  
+		  "xaxis2": {
+			"title": "Devices",
+			"titlefont": {
+			  "family": self.fontlist,
+			  "size": 18,
+			  "color": "black"
+			},
+			"anchor": "y",
 			"domain": [0, 1],
 			"position": 0,
 		  },
 
 		  "yaxis": {
-			#"domain": [0, 0.28],
-			"domain": [0, 1],
+			"domain": [0.7, 1],
 			"title": "Temperature (C)",
 			"titlefont": {
 			  "family": self.fontlist,
@@ -162,6 +175,19 @@ class plotlyClient(threading.Thread):
 			},
 			"position": 0,
 			"overlaying": "False",
+		  },
+		  
+		  "yaxis2": {
+			"domain": [0, 0.2],
+			"title": "State [0,1]",
+			"titlefont": {
+			  "family": self.fontlist,
+			  "size": 18,
+			  "color": "black"
+			},
+			"position": 0,
+			"overlaying": "False",
+			"range": [0, 1],
 		  },
 		  
 		  "paper_bgcolor": "white",
@@ -258,17 +284,17 @@ class plotlyClient(threading.Thread):
 					try:
 		
 						# Init MySQLdb
-						if self.debug: print strftime("[%H:%M:%S]: ", localtime()) + "MySQL connect"
+						if self.logger: self.logger.info(strftime("[%H:%M:%S]: ", localtime()) + "MySQL connect")
 						db = MySQLdatabase.Connect(mysql_host, mysql_login, mysql_pw, mysql_db)
 						if (db == None):
 							return
 
-						if self.debug: print strftime("[%H:%M:%S]: ", localtime()) + "Post SQL data to plotly"
+						if self.logger: self.logger.info(strftime("[%H:%M:%S]: ", localtime()) + "Post SQL data to plotly")
 						starttime = time()
 						interval = str(self.plotlyInterval) + ' day'
 						self.PostArraySQL(py, db, interval)
 						endtime = time()
-						print strftime("[%H:%M:%S]: ", localtime()) + "Plotly post time %s sec" % (endtime-starttime)
+						if self.logger: self.logger.info( strftime("[%H:%M:%S]: ", localtime()) + "Plotly post time %s sec" % (endtime-starttime))
 
 						MySQLdatabase.Close(db)
 
@@ -365,6 +391,18 @@ class plotlyClient(threading.Thread):
 			result = MySQLdatabase.QueryDataInterval(db, 'sensordata', interval, 'Toutside', 'Raspberry Pi', 'Current', 'Temperature')
 			(ts, value) = self.GenerateDataPoints(result)
 			self.DataPoints["Toutside"] = (ts, value)
+			
+			#Inside
+			if self.debug: print strftime("[%H:%M:%S]: ", localtime()) + "Tinside"
+			result = MySQLdatabase.QueryDataInterval(db, 'sensordata', interval, 'Tinside', 'Raspberry Pi', 'Current', 'Temperature')
+			(ts, value) = self.GenerateDataPoints(result)
+			self.DataPoints["Tinside"] = (ts, value)
+			
+			#Collector
+			if self.debug: print strftime("[%H:%M:%S]: ", localtime()) + "Tcollector"
+			result = MySQLdatabase.QueryDataInterval(db, 'sensordata', interval, 'Tcollector', 'Raspberry Pi', 'Current', 'Temperature')
+			(ts, value) = self.GenerateDataPoints(result)
+			self.DataPoints["Tcollector"] = (ts, value)
 
 			self.PurgeOldDataPoints(intervalDays)
 			
@@ -547,7 +585,9 @@ class plotlyClient(threading.Thread):
 	#Format data and send to plotly
 	def PostData(self, py):
 
-		data = []
+		trace1 = []
+		trace2 = []
+		trace3 = []
 		'''
 		series = {
 			'name' : '2nd Floor Temperature (Raspberry Pi)',
@@ -565,7 +605,7 @@ class plotlyClient(threading.Thread):
 			'type' : 'scatter',
 			'mode' : 'lines'
 			}
-		data.append(series)
+		trace1.append(series)
 		
 		series = {
 			'name' : 'Tkamin',
@@ -574,7 +614,7 @@ class plotlyClient(threading.Thread):
 			'type' : 'scatter',
 			'mode' : 'lines'
 			}
-		data.append(series)
+		trace1.append(series)
 		
 		series = {
 			'name' : 'Tsanitarna',
@@ -583,7 +623,7 @@ class plotlyClient(threading.Thread):
 			'type' : 'scatter',
 			'mode' : 'lines'
 			}
-		data.append(series)
+		trace1.append(series)
 		
 		series = {
 			'name' : 'Toutside',
@@ -592,57 +632,51 @@ class plotlyClient(threading.Thread):
 			'type' : 'scatter',
 			'mode' : 'lines'
 			}
-		data.append(series)
+		trace1.append(series)
+		
+		series = {
+			'name' : 'Tinside',
+			'x' : self.DataPoints["Tinside"][0],
+			'y' : self.DataPoints["Tinside"][1],
+			'type' : 'scatter',
+			'mode' : 'lines'
+			}
+		trace1.append(series)
+		
+		series = {
+			'name' : 'Tcollector',
+			'x' : self.DataPoints["Tcollector"][0],
+			'y' : self.DataPoints["Tcollector"][1],
+			'type' : 'scatter',
+			'mode' : 'lines'
+			}
+		trace1.append(series)
+		
+		series = {
+			'name' : 'BoilerPump',
+			'x' : self.DataPoints["BoilerPump"][0],
+			'y' : self.DataPoints["BoilerPump"][1],
+			'type' : 'scatter',
+			'mode' : 'lines'
+			}
+		trace2.append(series)
+		
+		series = {
+			'name' : 'FloorPump',
+			'x' : self.DataPoints["FloorPump"][0],
+			'y' : self.DataPoints["FloorPump"][1],
+			'type' : 'scatter',
+			'mode' : 'lines'
+			}
+		trace3.append(series)
 
 		try:
-
-			'''
-			self.layout['annotations'][:] = []				ds# empty out annotation array
-			#self.layout['annotations'] += [self.annotation_link]
-
-			#print "layout init"
-			#print self.layout['annotations']
-
-
-			query = """select max(data) from sensordata where ttimestamp > current_timestamp() - interval %s and sensor="Temperature";""" % interval
-			max = MySQLdatabase.Query(db, query)
-			query = """select min(data) from sensordata where ttimestamp > current_timestamp() - interval %s and sensor="Temperature";""" % interval
-			min = MySQLdatabase.Query(db, query)
-
-			# Annotate sunrise/sunset times in middle of temperature chart
-			if min[0][0] != None and max[0][0] != None:
-				mid = (max[0][0] - min[0][0])/2 + min[0][0]
-
-				result = MySQLdatabase.QueryDataInterval(db, 'sensordata', interval, 'Outdoor', 'ForecastIO', 'Current', 'Sunrise')
-				annot_sunrise = GenerateSunAnnotation(result, '☀', y=mid, color='rgb(255,215,0)') #☀︎☼
-				if annot_sunrise != None:
-					self.layout['annotations'] += annot_sunrise[:]
-	
-				#print "sunrise2"
-				#print annot_sunrise
-
-				#print "layout1"
-				#print self.layout['annotations']
-	
-				result = MySQLdatabase.QueryDataInterval(db, 'sensordata', interval, 'Outdoor', 'ForecastIO', 'Current', 'Sunset')
-				annot_sunset = GenerateSunAnnotation(result, '☀︎', y=mid, color='rgb(255,215,0)') #☀︎☼
-				if annot_sunset != None:
-					self.layout['annotations'] += annot_sunset[:]
-
-				#print "sunrise3"
-				#print annot_sunrise
-
-				#print "sunset"
-				#print annot_sunset
-	
-				#print "layout annot2"
-				#print self.layout['annotations']
-			'''
-
+			
 			# Send data to plotly
-			if self.debug: print strftime("[%H:%M:%S]: ", localtime()) + "Plotly Post"
-			fig = Figure(data=data, layout=self.layout)
-			response = py.plot(fig, filename='myplot', fileopt='overwrite')
+			if self.logger: self.logger.info( strftime("[%H:%M:%S]: ", localtime()) + "Plotly Post")
+			data = Data([trace1, trace2])
+			fig = Figure(data=trace1, layout=self.layout)
+			response = py.plot(fig, filename='myplot')
 
 		except:
 			print (strftime("[%H:%M:%S]: PostData EXCEPTION ", localtime()) + traceback.format_exc())
@@ -655,28 +689,17 @@ class plotlyClient(threading.Thread):
 	#Post data from SQL queries and send to plotly
 	def PostArraySQL(self, py, db, interval):
 
-		data = []
-		'''
+		trace1 = []
+		trace2 = []
+		trace3 = []
+		trace4 = []
+		trace5 = []
+		trace6 = []
+		trace7 = []
+		trace8 = []
+				
 		try:
-			if self.debug: print strftime("[%H:%M:%S]: ", localtime()) + "RPi Temperature"
-			result = MySQLdatabase.QueryDataInterval(db, 'sensordata', interval, '2nd Floor', 'Raspberry Pi', 'Current', 'Temperature')
-			(ts, value) = self.GenerateDataPoints(result)
-		except:
-			print (strftime("[%H:%M:%S]: EXCEPTION ", localtime()) + traceback.format_exc())
-
-			if self.logger:
-				self.logger.error((strftime("[%H:%M:%S]: EXCEPTION ", localtime()) + traceback.format_exc()), exc_info=True)
-		series = {
-			'name' : '2nd Floor Temperature (Raspberry Pi)',
-			'x' : ts,
-			'y' : value,
-			'type' : 'scatter',
-			'mode' : 'lines'
-			}
-		data.append(series)
-		'''
-		try:
-			if self.debug: print strftime("[%H:%M:%S]: ", localtime()) + "Tbojler"
+			if self.logger: self.logger.info( strftime("[%H:%M:%S]: ", localtime()) + "Tbojler")
 			result = MySQLdatabase.QueryDataInterval(db, 'sensordata', interval, 'Tbojler', 'Raspberry Pi', 'Current', 'Temperature')
 			(ts, value) = self.GenerateDataPoints(result)
 		except:
@@ -684,17 +707,16 @@ class plotlyClient(threading.Thread):
 
 			if self.logger:
 				self.logger.error((strftime("[%H:%M:%S]: EXCEPTION ", localtime()) + traceback.format_exc()), exc_info=True)
-		series = {
-			'name' : 'Tbojler',
+		trace1 = go.Scatter({
 			'x' : ts,
 			'y' : value,
-			'type' : 'scatter',
-			'mode' : 'lines'
-			}
-		data.append(series)
+			'name' : 'Heat Storage',
+			})
+		#trace1.append(series)
+		
 		
 		try:
-			if self.debug: print strftime("[%H:%M:%S]: ", localtime()) + "Tkamin"
+			if self.logger: self.logger.info( strftime("[%H:%M:%S]: ", localtime()) + "Tkamin")
 			result = MySQLdatabase.QueryDataInterval(db, 'sensordata', interval, 'Tkamin', 'Raspberry Pi', 'Current', 'Temperature')
 			(ts, value) = self.GenerateDataPoints(result)
 		except:
@@ -702,17 +724,15 @@ class plotlyClient(threading.Thread):
 
 			if self.logger:
 				self.logger.error((strftime("[%H:%M:%S]: EXCEPTION ", localtime()) + traceback.format_exc()), exc_info=True)
-		series = {
-			'name' : 'Tkamin',
+		trace3 = {
 			'x' : ts,
 			'y' : value,
-			'type' : 'scatter',
-			'mode' : 'lines'
+			'name' : 'Fireplace',
 			}
-		data.append(series)
+		#trace1.append(series)
 		
 		try:
-			if self.debug: print strftime("[%H:%M:%S]: ", localtime()) + "Tsanitarna"
+			if self.logger: self.logger.info( strftime("[%H:%M:%S]: ", localtime()) + "Tsanitarna")
 			result = MySQLdatabase.QueryDataInterval(db, 'sensordata', interval, 'Tsanitarna', 'Raspberry Pi', 'Current', 'Temperature')
 			(ts, value) = self.GenerateDataPoints(result)
 		except:
@@ -720,17 +740,15 @@ class plotlyClient(threading.Thread):
 
 			if self.logger:
 				self.logger.error((strftime("[%H:%M:%S]: EXCEPTION ", localtime()) + traceback.format_exc()), exc_info=True)
-		series = {
-			'name' : 'Tsanitarna',
+		trace4 = {
 			'x' : ts,
 			'y' : value,
-			'type' : 'scatter',
-			'mode' : 'lines'
+			'name' : 'Sanitary',
 			}
-		data.append(series)
+		#trace1.append(series)
 
 		try:
-			if self.debug: print strftime("[%H:%M:%S]: ", localtime()) + "Toutside"
+			if self.logger: self.logger.info( strftime("[%H:%M:%S]: ", localtime()) + "Toutside")
 			result = MySQLdatabase.QueryDataInterval(db, 'sensordata', interval, 'Toutside', 'Raspberry Pi', 'Current', 'Temperature')
 			(ts, value) = self.GenerateDataPoints(result)
 		except:
@@ -738,65 +756,129 @@ class plotlyClient(threading.Thread):
 
 			if self.logger:
 				self.logger.error((strftime("[%H:%M:%S]: EXCEPTION ", localtime()) + traceback.format_exc()), exc_info=True)
-		series = {
-			'name' : 'Toutside',
+		trace5 = {
 			'x' : ts,
 			'y' : value,
-			'type' : 'scatter',
-			'mode' : 'lines'
+			'name' : 'Outside',
+			'line':{
+				'shape' : 'spline',
+			},
 			}
-		data.append(series)
+		#trace1.append(series)
 		
 		try:
-			#self.layout['shapes'][:] = []				ds# empty out annotation array
-			'''
-			self.layout['annotations'][:] = []				ds# empty out annotation array
-			#self.layout['annotations'] += [self.annotation_link]
+			if self.logger: self.logger.info( strftime("[%H:%M:%S]: ", localtime()) + "Tinside")
+			result = MySQLdatabase.QueryDataInterval(db, 'sensordata', interval, 'Tinside', 'Raspberry Pi', 'Current', 'Temperature')
+			(ts, value) = self.GenerateDataPoints(result)
+		except:
+			print (strftime("[%H:%M:%S]: EXCEPTION ", localtime()) + traceback.format_exc())
+			
+			if self.logger:
+				self.logger.error((strftime("[%H:%M:%S]: EXCEPTION ", localtime()) + traceback.format_exc()), exc_info=True)
+		trace6 = {
+			'x' : ts,
+			'y' : value,
+			'name' : 'Inside',
+			'line':{
+				'shape' : 'spline',
+			},
+			}
+		
+		try:
+			if self.logger: self.logger.info( strftime("[%H:%M:%S]: ", localtime()) + "BoilerPump")
+			result = MySQLdatabase.QueryDataInterval(db, 'sensordata', interval, 'BoilerPump', 'Raspberry Pi', 'Current', 'Pump')
+			(ts, value) = self.GenerateDataPoints(result)
+		except:
+			print (strftime("[%H:%M:%S]: EXCEPTION ", localtime()) + traceback.format_exc())
 
-			#print "layout init"
-			#print self.layout['annotations']
+			if self.logger:
+				self.logger.error((strftime("[%H:%M:%S]: EXCEPTION ", localtime()) + traceback.format_exc()), exc_info=True)
+		trace2 = go.Scatter({
+			'x' : ts,
+			'y' : value,
+			'name' : 'Storage Pump',
+			'line':{
+				'shape' : 'hv',
+			},
+			'mode' : 'lines',
+			})
+		#trace2.append(series)
+		
+		try:
+			if self.logger: self.logger.info( strftime("[%H:%M:%S]: ", localtime()) + "FloorPump")
+
+			result = MySQLdatabase.QueryDataInterval(db, 'sensordata', interval, 'FloorPump', 'Raspberry Pi', 'Current', 'Pump')
+			(ts, value) = self.GenerateDataPoints(result)
+		except:
+			print (strftime("[%H:%M:%S]: EXCEPTION ", localtime()) + traceback.format_exc())
+
+			if self.logger:
+				self.logger.error((strftime("[%H:%M:%S]: EXCEPTION ", localtime()) + traceback.format_exc()), exc_info=True)
+		trace7 = go.Scatter({
+			'x' : ts,
+			'y' : value,
+			'name' : 'Floor Pump',
+			'line':{
+				'shape' : 'hv',
+			},
+			'mode' : 'lines',
+			})
+			
+		try:
+			if self.logger: self.logger.info( strftime("[%H:%M:%S]: ", localtime()) + "Tcollector")
+
+			result = MySQLdatabase.QueryDataInterval(db, 'sensordata', interval, 'Tcollector', 'Raspberry Pi', 'Current', 'Temperature')
+			(ts, value) = self.GenerateDataPoints(result)
+		except:
+			print (strftime("[%H:%M:%S]: EXCEPTION ", localtime()) + traceback.format_exc())
+
+			if self.logger:
+				self.logger.error((strftime("[%H:%M:%S]: EXCEPTION ", localtime()) + traceback.format_exc()), exc_info=True)
+		trace8 = {
+			'x' : ts,
+			'y' : value,
+			'name' : 'Tcollector',
+			'line':{
+				'shape' : 'spline',
+			},
+			}
+		
+		try:
+			if self.logger: self.logger.info( strftime("[%H:%M:%S]: ", localtime()) + "Start composing figures")
+
+			fig = tools.make_subplots(rows=3, cols=1, subplot_titles=('Temperature (C)', ''))
+			fig.append_trace(trace1, 1, 1) #Storage
+			fig.append_trace(trace3, 1, 1) #Fireplace
+			fig.append_trace(trace4, 1, 1) #sanitary
+			fig.append_trace(trace6, 1, 1) #Inside
+			fig.append_trace(trace5, 1, 1) #Outside
+			fig.append_trace(trace8, 1, 1) #Collector
+			fig.append_trace(trace7, 2, 1) #Floor Pump
+			fig.append_trace(trace2, 3, 1) #Heat Pump
+			
+
+			fig['layout']['yaxis1'].update(domain=[0.5, 1])
+			fig['layout']['xaxis1'].update(showticklabels=False)
+			#fig['layout']['yaxis2'].update(domain=[0.3, 0.5])
+			#fig['layout']['xaxis2'].update(showticklabels=False)
+			fig['layout']['yaxis2'].update(range=[0, 1], dtick=1, domain=[0.2, 0.3])
+			fig['layout']['xaxis2'].update(showticklabels=False)
+			fig['layout']['yaxis3'].update(range=[0, 1], dtick=1, domain=[0, 0.1])
 
 
-			query = """select max(data) from sensordata where ttimestamp > current_timestamp() - interval %s and sensor="Temperature";""" % interval
-			max = MySQLdatabase.Query(db, query)
-			query = """select min(data) from sensordata where ttimestamp > current_timestamp() - interval %s and sensor="Temperature";""" % interval
-			min = MySQLdatabase.Query(db, query)
+        
+ 			if self.logger: self.logger.info( strftime("[%H:%M:%S]: ", localtime()) + "End composing")       
+			
 
-			# Annotate sunrise/sunset times in middle of temperature chart
-			if min[0][0] != None and max[0][0] != None:
-				mid = (max[0][0] - min[0][0])/2 + min[0][0]
 
-				result = MySQLdatabase.QueryDataInterval(db, 'sensordata', interval, 'Outdoor', 'ForecastIO', 'Current', 'Sunrise')
-				annot_sunrise = GenerateSunAnnotation(result, '☀', y=mid, color='rgb(255,215,0)') #☀︎☼
-				if annot_sunrise != None:
-					self.layout['annotations'] += annot_sunrise[:]
-	
-				#print "sunrise2"
-				#print annot_sunrise
+			#print(fig['layout']['yaxis2'])
 
-				#print "layout1"
-				#print self.layout['annotations']
-	
-				result = MySQLdatabase.QueryDataInterval(db, 'sensordata', interval, 'Outdoor', 'ForecastIO', 'Current', 'Sunset')
-				annot_sunset = GenerateSunAnnotation(result, '☀︎', y=mid, color='rgb(255,215,0)') #☀︎☼
-				if annot_sunset != None:
-					self.layout['annotations'] += annot_sunset[:]
-
-				#print "sunrise3"
-				#print annot_sunrise
-
-				#print "sunset"
-				#print annot_sunset
-	
-				#print "layout annot2"
-				#print self.layout['annotations']
-			'''
-
-			# Send data to plotly
-			if self.debug: print strftime("[%H:%M:%S]: ", localtime()) + "Plotly Post"
-			fig = Figure(data=data, layout=self.layout)
-			response = py.plot(fig, filename='myplot', fileopt='overwrite')
-
+			fig['layout'].update(height=1000, width=600, title='Pi Home Automation')
+			if self.logger: self.logger.info( strftime("[%H:%M:%S]: ", localtime()) + "Plotly update...")
+			response = py.plot(fig, filename='myplot')
+			if self.logger: self.logger.info( strftime("[%H:%M:%S]: ", localtime()) + "Plot")
+			if self.logger: self.logger.info( strftime("[%H:%M:%S]: ", localtime()) + "Response: " + response)
+			
 		except:
 			print (strftime("[%H:%M:%S]: PostArraySQL EXCEPTION ", localtime()) + traceback.format_exc())
 		
@@ -804,6 +886,7 @@ class plotlyClient(threading.Thread):
 				self.logger.error((strftime("[%H:%M:%S]: PostArraySQL EXCEPTION ", localtime()) + traceback.format_exc()), exc_info=True)
 
 
+				
 
 class message:
 	timestamp = None
@@ -814,28 +897,3 @@ class message:
 if __name__ == '__main__':
 	main()
 
-'''"xaxis2": {
-"title": "Time",
-"titlefont": {
-  "family": self.fontlist,
-  "size": 18,
-  "color": "black"
-},
-"anchor": "y3",
-"overlaying": "False",
-"domain": [0, 1],
-"position": 0,
-},
-
-"yaxis2": {
-"domain": [0.59, 0.77],
-"title": "ON/OFF",
-"titlefont": {
-  "family": self.fontlist,
-  "size": 18,
-  "color": "black"
-},
-"overlaying": "False",
-"position": 0,
-},
-'''
