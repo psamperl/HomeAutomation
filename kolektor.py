@@ -13,7 +13,7 @@ sDict = {       '47000006C4507628': 'Tbojler',
                 'DB0000067CF42828': 'Tinside',
                 'BE000006C5856E28': 'Tcollector', }
 
-
+#calculate hyst
 def hyst(x, th_lo, th_hi, initial = False):
     hi = x >= th_hi
     lo_or_hi = (x <= th_lo) | hi
