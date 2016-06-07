@@ -292,6 +292,7 @@ class plotlyClient(threading.Thread):
 						if self.logger: self.logger.info(strftime("[%H:%M:%S]: ", localtime()) + "Post SQL data to plotly")
 						starttime = time()
 						interval = str(self.plotlyInterval) + ' day'
+						py = self.initPlotly(plotly_un, plotly_key)
 						self.PostArraySQL(py, db, interval)
 						endtime = time()
 						if self.logger: self.logger.info( strftime("[%H:%M:%S]: ", localtime()) + "Plotly post time %s sec" % (endtime-starttime))
