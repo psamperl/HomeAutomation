@@ -83,54 +83,58 @@ while True:
 		dictTemp = read_all_temp()
 		if(dictTemp != -1):
 			db = MySQLdatabase.Connect(mysql_host, mysql_login, mysql_pw, mysql_db)
-			print dictTemp
-			if (dictTemp != None):
-				for SensorName in dictTemp:
-					print (time.strftime("[%H:%M:%S]: ", time.localtime()) + SensorName + "\t" + str(dictTemp[SensorName]))
-					MySQLdatabase.InsertData(db, 'sensordata', SensorName, 'Raspberry Pi', 'Current', 'Temperature', dictTemp[SensorName], 'C')
+			if (db != None):
+				print dictTemp
+				if (dictTemp != None):
+					for SensorName in dictTemp:
+						print (time.strftime("[%H:%M:%S]: ", time.localtime()) + SensorName + "\t" + str(dictTemp[SensorName]))
+						MySQLdatabase.InsertData(db, 'sensordata', SensorName, 'Raspberry Pi', 'Current', 'Temperature', dictTemp[SensorName], 'C')
+						if logger:
+							logger.info (time.strftime("[%H:%M:%S]: ", time.localtime()) + SensorName + "\t" + str(dictTemp[SensorName]))
+						
+				#BOILER PUMP
+				if(float(dictTemp['Tsanitarna']) >= float(dictTemp['Tbojler']) + 1):
+					#save to DB
+					print (time.strftime("[%H:%M:%S]: ", time.localtime()) + 'BoilerPump' + "\t" + '0')
+					MySQLdatabase.InsertData(db, 'sensordata', 'BoilerPump', 'Raspberry Pi', 'Current', 'Pump', '0', 'bool')
 					if logger:
-						logger.info (time.strftime("[%H:%M:%S]: ", time.localtime()) + SensorName + "\t" + str(dictTemp[SensorName]))
+						logger.info (time.strftime("[%H:%M:%S]: ", time.localtime()) + 'BoilerPump' + "\t" + '0')
+			
+				if(float(dictTemp['Tsanitarna']) <= float(dictTemp['Tbojler']) - 1):
+					#save to DB
+					print (time.strftime("[%H:%M:%S]: ", time.localtime()) + 'BoilerPump' + "\t" + '1')
+					MySQLdatabase.InsertData(db, 'sensordata', 'BoilerPump', 'Raspberry Pi', 'Current', 'Pump', '1', 'bool')
+					if logger:
+						logger.info (time.strftime("[%H:%M:%S]: ", time.localtime()) + 'BoilerPump' + "\t" + '1')
+								
+				#FLOOR PUMP
+				if 'Tinside' in dictTemp:
+					if((float(dictTemp['Tinside']) >= 25) or (curFloorPump == None)):
+						#save to DB
+						print (time.strftime("[%H:%M:%S]: ", time.localtime()) + 'FloorPump' + "\t" + '0')
+						MySQLdatabase.InsertData(db, 'sensordata', 'FloorPump', 'Raspberry Pi', 'Current', 'Pump', '0', 'bool')
+						if logger:
+							logger.info (time.strftime("[%H:%M:%S]: ", time.localtime()) + 'FloorPump' + "\t" + '0')
+						if curFloorPump != None:
+							curFloorPump = 0
+				else:
+					print (time.strftime("[%H:%M:%S]: ", time.localtime()) + 'Sensor Tinside missing')
+					if logger:
+											logger.info (time.strftime("[%H:%M:%S]: ", time.localtime()) + 'Sensor Tinside missing')
 					
-			#BOILER PUMP
-			if(float(dictTemp['Tsanitarna']) >= float(dictTemp['Tbojler']) + 1):
-				#save to DB
-				print (time.strftime("[%H:%M:%S]: ", time.localtime()) + 'BoilerPump' + "\t" + '0')
-				MySQLdatabase.InsertData(db, 'sensordata', 'BoilerPump', 'Raspberry Pi', 'Current', 'Pump', '0', 'bool')
-				if logger:
-					logger.info (time.strftime("[%H:%M:%S]: ", time.localtime()) + 'BoilerPump' + "\t" + '0')
-		
-			if(float(dictTemp['Tsanitarna']) <= float(dictTemp['Tbojler']) - 1):
-				#save to DB
-				print (time.strftime("[%H:%M:%S]: ", time.localtime()) + 'BoilerPump' + "\t" + '1')
-				MySQLdatabase.InsertData(db, 'sensordata', 'BoilerPump', 'Raspberry Pi', 'Current', 'Pump', '1', 'bool')
-				if logger:
-					logger.info (time.strftime("[%H:%M:%S]: ", time.localtime()) + 'BoilerPump' + "\t" + '1')
-							
-			#FLOOR PUMP
-			if 'Tinside' in dictTemp:
-				if((float(dictTemp['Tinside']) >= 25) or (curFloorPump == None)):
-					#save to DB
-					print (time.strftime("[%H:%M:%S]: ", time.localtime()) + 'FloorPump' + "\t" + '0')
-					MySQLdatabase.InsertData(db, 'sensordata', 'FloorPump', 'Raspberry Pi', 'Current', 'Pump', '0', 'bool')
-					if logger:
-						logger.info (time.strftime("[%H:%M:%S]: ", time.localtime()) + 'FloorPump' + "\t" + '0')
-					if curFloorPump != None:
-						curFloorPump = 0
+				if 'Tinside' in dictTemp:
+					if(float(dictTemp['Tinside']) <= 23):
+						#save to DB
+						print (time.strftime("[%H:%M:%S]: ", time.localtime()) + 'FloorPump' + "\t" + '1')
+						MySQLdatabase.InsertData(db, 'sensordata', 'FloorPump', 'Raspberry Pi', 'Current', 'Pump', '1', 'bool')
+						if logger:
+							logger.info (time.strftime("[%H:%M:%S]: ", time.localtime()) + 'FloorPump' + "\t" + '1')
+						curFloorPump = 1
+			
+				MySQLdatabase.Close(db)
 			else:
-				print (time.strftime("[%H:%M:%S]: ", time.localtime()) + 'Sensor Tinside missing')
 				if logger:
-                                        logger.info (time.strftime("[%H:%M:%S]: ", time.localtime()) + 'Sensor Tinside missing')
-				
-			if 'Tinside' in dictTemp:
-				if(float(dictTemp['Tinside']) <= 23):
-					#save to DB
-					print (time.strftime("[%H:%M:%S]: ", time.localtime()) + 'FloorPump' + "\t" + '1')
-					MySQLdatabase.InsertData(db, 'sensordata', 'FloorPump', 'Raspberry Pi', 'Current', 'Pump', '1', 'bool')
-					if logger:
-						logger.info (time.strftime("[%H:%M:%S]: ", time.localtime()) + 'FloorPump' + "\t" + '1')
-					curFloorPump = 1
-		
-			MySQLdatabase.Close(db)
+							logger.info (time.strftime("[%H:%M:%S]: ", time.localtime()) + 'No database')
 		else:
 			 if logger:
                          	logger.info (time.strftime("[%H:%M:%S]: ", time.localtime()) + 'dictTemp missing!')
