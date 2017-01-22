@@ -10,10 +10,11 @@ import time
 import FileLogger
 import traceback
 from Config import *
+from Private import *
 
 # Create an ApiClient object
 
-api = ApiClient(token='gyaQPKoEmbdGBUBihKTaqqqs8ASK77')
+api = ApiClient(token=ubidotstoken)
 
 # Get a Ubidots Variable
 
