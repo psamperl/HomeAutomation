@@ -147,15 +147,15 @@ while(1):
 		if(dictTemp != -1):
 			#print dictTemp
 			if (dictTemp != None):
-				logger.info(time.strftime("[%H:%M:%S]: ", time.localtime()) +  'Tbojler:' + dictTemp['Tbojler'] + ' Tsanitarna:' + dictTemp['Tsanitarna']+' Tkamin:' + dictTemp['Tkamin']+' Toutside:' + dictTemp['Toutside']+' Tinside:' + dictTemp['Tinside']+' Tcollector:' + dictTemp['Tcollector'] +' Pcollector:' + collectorpump)
-				print(time.strftime("[%H:%M:%S]: ", time.localtime()) +  'Tbojler:' + dictTemp['Tbojler'] + ' Tsanitarna:' + dictTemp['Tsanitarna']+' Tkamin:' + dictTemp['Tkamin']+' Toutside:' + dictTemp['Toutside']+' Tinside:' + dictTemp['Tinside']+' Tcollector:' + dictTemp['Tcollector'] +' Pcollector:' + collectorpump)
+				logger.info(time.strftime("[%H:%M:%S]: ", time.localtime()) +  'Tbojler:' + dictTemp['Tbojler'] + ' Tsanitarna:' + dictTemp['Tsanitarna']+' Trkam:' + dictTemp['Trkam']+' Toutside:' + dictTemp['Toutside']+' Tinside:' + dictTemp['Tinside']+' Tcollector:' + dictTemp['Tcollector'] +' Pcollector:' + collectorpump)
+				print(time.strftime("[%H:%M:%S]: ", time.localtime()) +  'Tbojler:' + dictTemp['Tbojler'] + ' Tsanitarna:' + dictTemp['Tsanitarna']+' Trkam:' + dictTemp['Trkam']+' Toutside:' + dictTemp['Toutside']+' Tinside:' + dictTemp['Tinside']+' Tcollector:' + dictTemp['Tcollector'] +' Pcollector:' + collectorpump)
 				try:
 					with Timeout(60):
 						#ubidots does not support tags or names so id is the only thing we can send at the moment
 						api.save_collection([
 						  {'variable': '5884c724762542630e9a87d0', 'value': dictTemp['Tbojler']}, 
 						  {'variable': '5884c755762542630e9a892e', 'value': dictTemp['Tsanitarna']},
-						  {'variable': '5884c768762542630faa1614', 'value': dictTemp['Tkamin']},
+						  {'variable': '5884c768762542630faa1614', 'value': dictTemp['Trkam']},
 						  {'variable': '5884cf71762542630da216e1', 'value': dictTemp['Toutside']},
 						  {'variable': '5884cf68762542631035b438', 'value': dictTemp['Tinside']},
 						  {'variable': '5884cf7f7625426311a70cb9', 'value': dictTemp['Tcollector']},

@@ -16,7 +16,7 @@ HOME_AUTOMATION_SANITARY_TEMPERATURE_HYSTERESIS = 1
 
 sDict = {       '47000006C4507628': 'Tbojler',
                 'BC000006C53F2928': 'Tsanitarna',
-                '2C000006C3BCDB28': 'Tkamin',
+                '2C000006C3BCDB28': 'Trkam',
                 '6C000006C43A6228': 'Toutside',
                 'DB0000067CF42828': 'Tinside',
 		'BE000006C5856E28': 'Tcollector',
