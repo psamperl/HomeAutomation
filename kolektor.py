@@ -77,26 +77,31 @@ Kolektori = 30
 # endless loop, on/off for 1 second
 while True:
 	
-	dictTemp = read_all_temp()
-	if(dictTemp != -1):
-        	if(float(dictTemp['Tsanitarna']) <= float(dictTemp['Tcollector']) - 8):
-        		logger.info (time.strftime("[%H:%M:%S]: ", time.localtime()) + 'Pumpa ON')
-			print (time.strftime("[%H:%M:%S]: ", time.localtime()) + 'Tsanitarna <= Tkolektor-8 Pumpa ON')
-			GPIO.output(27,False) #Turn power ON
-			state = True
+	try:
+		dictTemp = read_all_temp()
+		if(dictTemp != -1):
+	        	if(float(dictTemp['Tsanitarna']) <= float(dictTemp['Tcollector']) - 8):
+	        		logger.info (time.strftime("[%H:%M:%S]: ", time.localtime()) + 'Pumpa ON')
+				print (time.strftime("[%H:%M:%S]: ", time.localtime()) + 'Tsanitarna <= Tkolektor-8 Pumpa ON')
+				GPIO.output(27,False) #Turn power ON
+				state = True
 
 
-        	if(float(dictTemp['Tsanitarna']) > float(dictTemp['Tcollector']) - 2):	
-			logger.info (time.strftime("[%H:%M:%S]: ", time.localtime()) + 'Pumpa OFF')
-	        	print (time.strftime("[%H:%M:%S]: ", time.localtime()) + 'Tsanitarna > Tkolektor-2 Pumpa OFF')
-			GPIO.output(27,True) #Turn power OFF
-			state = False
+	        	if(float(dictTemp['Tsanitarna']) > float(dictTemp['Tcollector']) - 2):	
+				logger.info (time.strftime("[%H:%M:%S]: ", time.localtime()) + 'Pumpa OFF')
+		        	print (time.strftime("[%H:%M:%S]: ", time.localtime()) + 'Tsanitarna > Tkolektor-2 Pumpa OFF')
+				GPIO.output(27,True) #Turn power OFF
+				state = False
 
-		logger.info (time.strftime("[%H:%M:%S]: ", time.localtime()) + 'Tkol ' + dictTemp['Tcollector'] + "\t" + 'Tsan ' + dictTemp['Tsanitarna'] + "\t" + 'Pump=' + str(state))
-		print (time.strftime("[%H:%M:%S]: ", time.localtime()) + 'Tkolektor ' + dictTemp['Tcollector'] + "\t" + 'Tsanitarna ' + dictTemp['Tsanitarna'] + "\t" + 'Kolektor pumpa ' + str(state))
-	else:
-		logger.info (time.strftime("[%H:%M:%S]: ", time.localtime()) + 'dictTemp missing')
-	time.sleep(10)
+			logger.info (time.strftime("[%H:%M:%S]: ", time.localtime()) + 'Tkol ' + dictTemp['Tcollector'] + "\t" + 'Tsan ' + dictTemp['Tsanitarna'] + "\t" + 'Pump=' + str(state))
+			print (time.strftime("[%H:%M:%S]: ", time.localtime()) + 'Tkolektor ' + dictTemp['Tcollector'] + "\t" + 'Tsanitarna ' + dictTemp['Tsanitarna'] + "\t" + 'Kolektor pumpa ' + str(state))
+		else:
+			logger.info (time.strftime("[%H:%M:%S]: ", time.localtime()) + 'dictTemp missing')
+		time.sleep(10)
+	except Exception, e:
+		logger.info("Exception durring runtime")
+        	print (time.strftime("[%H:%M:%S]: EXCEPTION ", time.localtime()) + traceback.format_exc())
+		logger.info (time.strftime("[%H:%M:%S]: EXCEPTION ", time.localtime()) + traceback.format_exc())
 
 """	if(Sanitarna <= Kolektori - 8):
         	print (strftime("[%H:%M:%S]: ", localtime()) + 'Kolektor pumpa ON')

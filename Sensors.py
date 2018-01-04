@@ -1,13 +1,14 @@
 import ow
+from Config import *
 
 ow.init('localhost:4304')
 
-sDict = { 	'47000006C4507628': 'Tbojler',
-			'BC000006C53F2928': 'Tsanitarna',
-			'2C000006C3BCDB28': 'Tkamin', 
-			'6C000006C43A6228': 'Toutside',
-			'DB0000067CF42828': 'Tinside', 
-			'BE000006C5856E28': 'Tcollector', }
+#sDict = { 	'47000006C4507628': 'Tbojler',
+#			'BC000006C53F2928': 'Tsanitarna',
+#			'2C000006C3BCDB28': 'Tkamin', 
+#			'6C000006C43A6228': 'Toutside',
+#			'DB0000067CF42828': 'Tinside', 
+#			'BE000006C5856E28': 'Tcollector', }
 
 #read all temperatures
 def read_all_temp():
