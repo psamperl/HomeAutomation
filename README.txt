@@ -1,3 +1,23 @@
+#PURPOSE
+ fireplace.py - checks if fireplace temperature is bigger than boiler. Acts as a differential thermostat by switching a pump
+ kolektor.py - checks if collector temperature is bigger than boiler. Acts as a differential thermostat by switching a pump
+ ubiClient.py - collects all temperature from 1wire sensors using OWFS and sends it to Ubidots
+ 
+ fireplace_check.sh - keeps fireplace.py running and sends alert if restarted
+ kolektor_check.sh - keeps kolektor.py running and sends alert if restarted
+ ubiClient_check.sh - keeps ubiClient.py running and sends alert if restarted
+
+#USED
+ - RPI,
+ - SPI 1wire module http://www.sheepwalkelectronics.co.uk/product_info.php?cPath=22&products_id=67
+ - 1wire sensors
+ - relay board for pumps
+ - OWFS to get temperatures from 1wire sensors
+ - python
+ - bash
+ - ubidots
+ 
+ 
 #HOW TO SETUP
 	sudo raspi/config (enable spi and i2c)
 	sudo reboot
@@ -28,7 +48,7 @@
 	git commit -a
 	git push
 
-#ADD Private.py with ubidots credentials
+#Create Private.py with ubidots credentials
 	ubidotstoken = 'XXXXXXX'
 
 #HOW TO SETUP CRON
