@@ -4,7 +4,7 @@ import RPi.GPIO as GPIO
 import time
 import ow
 import FileLogger
-
+from HWPins import *
 
 sDict = {       '47000006C4507628': 'Tbojler',
                 'BC000006C53F2928': 'Tsanitarna',
@@ -59,8 +59,8 @@ def read_all_temp():
 print "Starting Logger.." 
 GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BCM)
-GPIO.setup(27, GPIO.OUT)
-GPIO.output(27,True) #Turn power OFF
+GPIO.setup(collecot_pinout, GPIO.OUT)
+GPIO.output(collecot_pinout,True) #Turn power OFF
 
 global logger
 logger = FileLogger.startLogger("/var/log/kolektor.log", 1000000, 5) 
@@ -83,14 +83,14 @@ while True:
 	        	if(float(dictTemp['Tsanitarna']) <= float(dictTemp['Tcollector']) - 8):
 	        		logger.info (time.strftime("[%H:%M:%S]: ", time.localtime()) + 'Pumpa ON')
 				print (time.strftime("[%H:%M:%S]: ", time.localtime()) + 'Tsanitarna <= Tkolektor-8 Pumpa ON')
-				GPIO.output(27,False) #Turn power ON
+				GPIO.output(collecot_pinout,False) #Turn power ON
 				state = True
 
 
 	        	if(float(dictTemp['Tsanitarna']) > float(dictTemp['Tcollector']) - 2):	
 				logger.info (time.strftime("[%H:%M:%S]: ", time.localtime()) + 'Pumpa OFF')
 		        	print (time.strftime("[%H:%M:%S]: ", time.localtime()) + 'Tsanitarna > Tkolektor-2 Pumpa OFF')
-				GPIO.output(27,True) #Turn power OFF
+				GPIO.output(collecot_pinout,True) #Turn power OFF
 				state = False
 
 			logger.info (time.strftime("[%H:%M:%S]: ", time.localtime()) + 'Tkol ' + dictTemp['Tcollector'] + "\t" + 'Tsan ' + dictTemp['Tsanitarna'] + "\t" + 'Pump=' + str(state))

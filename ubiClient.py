@@ -6,7 +6,7 @@ import glob
 from ubidots import ApiClient
 import math
 import time
-import MySQLdatabase
+#import MySQLdatabase
 import ow
 import time
 import FileLogger
@@ -15,7 +15,7 @@ import RPi.GPIO as GPIO
 from Config import *
 from Private import *
 import code, traceback, signal
-
+from HWPins import *
 
 #sudo strace -f -o /tmp/ubidots_strace.log python ubiClient.py
 
@@ -26,9 +26,9 @@ collectorpump = '0';
 fireplacepump = '0';
 GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BCM)
-GPIO.setup(27, GPIO.OUT)# collector pump
+GPIO.setup(collecot_pinout, GPIO.OUT)# collector pump
 GPIO.setmode(GPIO.BCM)
-GPIO.setup(17, GPIO.OUT)# fireplace pump
+GPIO.setup(fireplace_pinout, GPIO.OUT)# fireplace pump
 
 class Timeout():
   """Timeout class using ALARM signal"""
@@ -133,12 +133,12 @@ while(1):
     	#read temperatures from owfs
 		logger.info("Read temperatures...")
 		dictTemp = read_all_temp()
-		if (GPIO.input(27) == True): # Physically read the pin now
+		if (GPIO.input(collecot_pinout) == True): # Physically read the pin now
 			collectorpump = '0'
 		else:
 			collectorpump = '1'
 			
-		if (GPIO.input(17) == True): # Physically read the pin now
+		if (GPIO.input(fireplace_pinout) == True): # Physically read the pin now
 			fireplacepump = '0'
 		else:
 			fireplacepump = '1'
