@@ -1,9 +1,18 @@
 #PURPOSE
- fireplace.py - checks if fireplace temperature is bigger than boiler. Acts as a differential thermostat by switching a pump
- kolektor.py - checks if collector temperature is bigger than boiler. Acts as a differential thermostat by switching a pump
- ubiClient.py - collects all temperature from 1wire sensors using OWFS and sends it to Ubidots
+ fireplace.py
+	checks if fireplace temperature is bigger than boiler.
+	Acts as a differential thermostat by switching a pump
+ kolektor.py
+	Checks if collector temperature is bigger than boiler.
+	Acts as a differential thermostat by switching a pump
+ ubiClient.py
+	Collects all temperature from 1wire sensors using OWFS and sends it to Ubidots
+ getSensorVal.py
+	Used to debug or when adding new sensors to the system.
+	Prints out all sensors IDs and values
  
- fireplace_check.sh - keeps fireplace.py running and sends alert if restarted
+ 
+ fireplace_check.sh - Keeps fireplace.py running and sends alert if restarted
  kolektor_check.sh - keeps kolektor.py running and sends alert if restarted
  ubiClient_check.sh - keeps ubiClient.py running and sends alert if restarted
 
