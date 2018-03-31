@@ -1,3 +1,5 @@
+![alt text](HomeAutomation/old/ubidots.png)
+
 #PURPOSE
  fireplace.py
 	checks if fireplace temperature is bigger than boiler.
