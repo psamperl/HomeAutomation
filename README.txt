@@ -1,5 +1,5 @@
-https://github.com/psamperl/HomeAutomation/blob/master/old/1.png
-https://github.com/psamperl/HomeAutomation/blob/master/old/2.png
+https://github.com/psamperl/HomeAutomation/blob/master/old/1.jpg
+https://github.com/psamperl/HomeAutomation/blob/master/old/2.jpg
 https://github.com/psamperl/HomeAutomation/blob/master/old/3.png
 
 #PURPOSE
