@@ -1,4 +1,6 @@
-![alt text](https://github.com/psamperl/HomeAutomation/blob/master/old/ubidots.png?raw=true)
+https://github.com/psamperl/HomeAutomation/blob/master/old/1.png
+https://github.com/psamperl/HomeAutomation/blob/master/old/2.png
+https://github.com/psamperl/HomeAutomation/blob/master/old/3.png
 
 #PURPOSE
  fireplace.py
