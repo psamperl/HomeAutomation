@@ -1,4 +1,8 @@
 #!/bin/bash
+
+# Script watches if collector process is running.
+# If not then starts it and sends message to Pushbullet
+
 TOKEN=$1
 if ps -ef | grep -v grep | grep kolektor.py ; then
         exit 0

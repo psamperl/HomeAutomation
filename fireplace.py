@@ -7,6 +7,9 @@ import FileLogger
 from Config import *
 from HWPins import *
 
+# Script acts as a differential thermostat.
+# It switches on fireplace pump in case temperature in fireplace higher than 8
+
 #calculate hyst
 def hyst(x, th_lo, th_hi, initial = False):
     hi = x >= th_hi

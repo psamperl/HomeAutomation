@@ -6,7 +6,6 @@ import glob
 from ubidots import ApiClient
 import math
 import time
-#import MySQLdatabase
 import ow
 import time
 import FileLogger
@@ -16,6 +15,9 @@ from Config import *
 from Private import *
 import code, traceback, signal
 from HWPins import *
+
+# Script collects all temperatures from 1wire sensors.
+# It sends it to ubidots
 
 #sudo strace -f -o /tmp/ubidots_strace.log python ubiClient.py
 

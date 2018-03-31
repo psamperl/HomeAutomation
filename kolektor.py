@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 
+# Script acts as a differential thermostat.
+# It switches on collector pump in case temperature in collector higher than 8
+
 import RPi.GPIO as GPIO
 import time
 import ow
