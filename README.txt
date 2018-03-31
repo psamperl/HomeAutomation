@@ -29,7 +29,7 @@
 	git push
 
 #ADD Private.py with ubidots credentials
-	ubidotstoken = XXXXXXX
+	ubidotstoken = 'XXXXXXX'
 
 #HOW TO SETUP CRON
 	@reboot /bin/sleep 60 && /usr/bin/curl -u <PUSHBULLET_TOKEN>: https://api.pushbullet.com/v2/pushes -d type=note -d title="Alert" -d b$
