@@ -1,5 +1,5 @@
 #HOW TO SETUP
-	sudo raspi/config (enable spi in i2c)
+	sudo raspi/config (enable spi and i2c)
 	sudo reboot
 	passwd
 	sudo apt-get update
