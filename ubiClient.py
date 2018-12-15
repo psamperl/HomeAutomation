@@ -177,7 +177,7 @@ while(1):
 						logger.error((time.strftime("[%H:%M:%S]: EXCEPTION ", time.localtime()) + traceback.format_exc()), exc_info=True)
 		else:
 			logger.info (time.strftime("[%H:%M:%S]: ", time.localtime()) + 'dictTemp missing!')
-		time.sleep(60)
+		time.sleep(120)
     except:	
     	print (time.strftime("[%H:%M:%S]: EXCEPTION ", time.localtime()) + traceback.format_exc())
         if logger:

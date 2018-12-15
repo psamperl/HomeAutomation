@@ -73,22 +73,28 @@ Tfireplace = 30
 """
 # endless loop, on/off for 1 second
 while True:
-	
+
 	try:
 		dictTemp = read_all_temp()
 		if(dictTemp != -1):
-	        	if(float(dictTemp['Tsanitarna']) <= float(dictTemp['Tfireplace']) - 8):
-	        		logger.info (time.strftime("[%H:%M:%S]: ", time.localtime()) + 'Pumpa ON')
-				print (time.strftime("[%H:%M:%S]: ", time.localtime()) + 'Tsanitarna <= Tfireplace-8 Pumpa ON')
-				GPIO.output(fireplace_pinout,False) #Turn power ON
+
+			if(float(dictTemp['Tfireplace']) > 60):
+				print (time.strftime("[%H:%M:%S]: ", time.localtime()) + 'Tfireplace > 60 Pumpa ON')
 				state = True
-
-
-	        	if(float(dictTemp['Tsanitarna']) > float(dictTemp['Tfireplace']) - 2):	
-				logger.info (time.strftime("[%H:%M:%S]: ", time.localtime()) + 'Pumpa OFF')
-		        	print (time.strftime("[%H:%M:%S]: ", time.localtime()) + 'Tsanitarna > Tfireplace-2 Pumpa OFF')
-				GPIO.output(fireplace_pinout,True) #Turn power OFF
+	        	elif(float(dictTemp['Tsanitarna']) <= float(dictTemp['Tfireplace']) - 8):
+				print (time.strftime("[%H:%M:%S]: ", time.localtime()) + 'Tsanitarna <= Tfireplace-8 Pumpa ON')
+				state = True
+			elif(float(dictTemp['Tsanitarna']) > float(dictTemp['Tfireplace']) - 2):
+				print (time.strftime("[%H:%M:%S]: ", time.localtime()) + 'Tsanitarna > Tfireplace-2 Pumpa OFF')
 				state = False
+
+
+			if(state == False):
+				logger.info (time.strftime("[%H:%M:%S]: ", time.localtime()) + 'Pumpa OFF')
+				GPIO.output(fireplace_pinout,True) #Turn power OFF
+			else:
+				logger.info (time.strftime("[%H:%M:%S]: ", time.localtime()) + 'Pumpa ON')
+				GPIO.output(fireplace_pinout,False) #Turn power ON
 
 			logger.info (time.strftime("[%H:%M:%S]: ", time.localtime()) + 'Tkol ' + dictTemp['Tfireplace'] + "\t" + 'Tsan ' + dictTemp['Tsanitarna'] + "\t" + 'Pump=' + str(state))
 			print (time.strftime("[%H:%M:%S]: ", time.localtime()) + 'Tfireplace ' + dictTemp['Tfireplace'] + "\t" + 'Tsanitarna ' + dictTemp['Tsanitarna'] + "\t" + 'Kamin pumpa ' + str(state))
