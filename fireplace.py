@@ -96,7 +96,7 @@ while True:
 				logger.info (time.strftime("[%H:%M:%S]: ", time.localtime()) + 'Pumpa ON')
 				GPIO.output(fireplace_pinout,False) #Turn power ON
 
-			logger.info (time.strftime("[%H:%M:%S]: ", time.localtime()) + 'Tkol ' + dictTemp['Tfireplace'] + "\t" + 'Tsan ' + dictTemp['Tsanitarna'] + "\t" + 'Pump=' + str(state))
+			logger.info (time.strftime("[%H:%M:%S]: ", time.localtime()) + 'Tfire ' + dictTemp['Tfireplace'] + "\t" + 'Tsan ' + dictTemp['Tsanitarna'] + "\t" + 'Pump=' + str(state))
 			print (time.strftime("[%H:%M:%S]: ", time.localtime()) + 'Tfireplace ' + dictTemp['Tfireplace'] + "\t" + 'Tsanitarna ' + dictTemp['Tsanitarna'] + "\t" + 'Kamin pumpa ' + str(state))
 		else:
 			logger.info (time.strftime("[%H:%M:%S]: ", time.localtime()) + 'dictTemp missing')
