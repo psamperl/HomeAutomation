@@ -81,10 +81,10 @@ while True:
 			if(float(dictTemp['Tfireplace']) > 60):
 				print (time.strftime("[%H:%M:%S]: ", time.localtime()) + 'Tfireplace > 60 Pumpa ON')
 				state = True
-	        	elif(float(dictTemp['Tsanitarna']) <= float(dictTemp['Tfireplace']) - 8):
+	        	elif(float(dictTemp['Tbojler']) <= float(dictTemp['Tfireplace']) - 8):
 				print (time.strftime("[%H:%M:%S]: ", time.localtime()) + 'Tsanitarna <= Tfireplace-8 Pumpa ON')
 				state = True
-			elif(float(dictTemp['Tsanitarna']) > float(dictTemp['Tfireplace']) - 2):
+			elif(float(dictTemp['Tbojler']) > float(dictTemp['Tfireplace']) - 2):
 				print (time.strftime("[%H:%M:%S]: ", time.localtime()) + 'Tsanitarna > Tfireplace-2 Pumpa OFF')
 				state = False
 
@@ -96,8 +96,8 @@ while True:
 				logger.info (time.strftime("[%H:%M:%S]: ", time.localtime()) + 'Pumpa ON')
 				GPIO.output(fireplace_pinout,False) #Turn power ON
 
-			logger.info (time.strftime("[%H:%M:%S]: ", time.localtime()) + 'Tfire ' + dictTemp['Tfireplace'] + "\t" + 'Tsan ' + dictTemp['Tsanitarna'] + "\t" + 'Pump=' + str(state))
-			print (time.strftime("[%H:%M:%S]: ", time.localtime()) + 'Tfireplace ' + dictTemp['Tfireplace'] + "\t" + 'Tsanitarna ' + dictTemp['Tsanitarna'] + "\t" + 'Kamin pumpa ' + str(state))
+			logger.info (time.strftime("[%H:%M:%S]: ", time.localtime()) + 'Tfire ' + dictTemp['Tfireplace'] + "\t" + 'Tbojler ' + dictTemp['Tbojler'] + "\t" + 'Pump=' + str(state))
+			print (time.strftime("[%H:%M:%S]: ", time.localtime()) + 'Tfireplace ' + dictTemp['Tfireplace'] + "\t" + 'Tbojler ' + dictTemp['Tbojler'] + "\t" + 'Kamin pumpa ' + str(state))
 		else:
 			logger.info (time.strftime("[%H:%M:%S]: ", time.localtime()) + 'dictTemp missing')
 		time.sleep(10)
