@@ -178,7 +178,7 @@ while(1):
 						  {'variable': '602230161d8472170cb47566', 'value': dictTemp['Tinside']},
 						  {'variable': '602230421d847218201758c3', 'value': dictTemp['Tcollector']},
 						  {'variable': '602230821d847217c10a2cac', 'value': dictTemp['Tfireplace']},
-              {'variable': '64083d81229b9a000b8d1065', 'value': dictTemp['Trkam']}
+						  {'variable': '64083d81229b9a000b8d1065', 'value': dictTemp['Trkam']}
 						])
 							
 						logger.info (time.strftime("[%H:%M:%S]: ", time.localtime()) + 'Send OK')
